@@ -1,11 +1,22 @@
+import com.mysql.cj.protocol.Resultset;
+import com.sun.tools.javac.Main;
+
 import javax.swing.*;
 import java.awt.*;
-import java.net.URL;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-public class Login extends JFrame {
-    JTextField usernameInput,passwordInput;
+
+public class Login extends JFrame implements ActionListener {
+    JTextField usernameInput, passwordInput;
     Choice loginChoice;
-    JButton loginButton,forget,signUpButton;
+    JButton loginButton, forget, signUpButton;
+
     Login() {
         // Set the Title of the Window
         setTitle("Login");
@@ -29,7 +40,7 @@ public class Login extends JFrame {
         add(password);
 
         // Add a password input field
-        passwordInput = new JTextField();
+        passwordInput = new JPasswordField();
         passwordInput.setBounds(300, 60, 150, 25);
         add(passwordInput);
 
@@ -48,16 +59,19 @@ public class Login extends JFrame {
         // Add a login button
         loginButton = new JButton("Login");
         loginButton.setBounds(300, 130, 100, 25);
+        loginButton.addActionListener(this);
         add(loginButton);
 
         // Add a cancel button
         forget = new JButton("Forget");
         forget.setBounds(360, 170, 80, 25);
+        forget.addActionListener(this);
         add(forget);
 
         // Add a sign-up button
         signUpButton = new JButton("Sign Up");
         signUpButton.setBounds(260, 170, 80, 25);
+        signUpButton.addActionListener(this);
         add(signUpButton);
 
         // Add a profile icon
@@ -68,12 +82,58 @@ public class Login extends JFrame {
         profileIconFinalLabel.setBounds(10, 25, 200, 200);
         add(profileIconFinalLabel);
 
-        setSize(500,300);
+        setSize(500, 300);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                try {
+                    Connection conn = Database.getConnection();
+                    if (conn != null && !conn.isClosed()) {
+                        conn.close();
+                        System.out.println("Database connection closed.");
+                    }
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        setResizable(false);
         setLayout(null);
         setVisible(true);
 
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+        if (e.getSource() == signUpButton) {
+            setVisible(false);
+            new SignUp().setVisible(true);
+        } else if (e.getSource() == loginButton) {
+            String username = usernameInput.getText();
+            String password = passwordInput.getText();
+            String loginAs = loginChoice.getSelectedItem();
+            try{
+                String query = "select * from users where username = '"+username+"' and password = '"+password+"' and usertype = '"+loginAs +"'" ;
+                ResultSet resultSet = Database.getStatement().executeQuery(query);
+
+                if(resultSet.next()){
+                    setVisible(false);
+                    new main_window();
+                }else {
+                    JOptionPane.showMessageDialog(null, "Invalid Username or Password");
+                }
+
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+        } else if (e.getSource() == forget) {
+            setVisible(false);
+            new Forget().setVisible(true);
+        }
     }
 
     public static void main(String[] args) {
