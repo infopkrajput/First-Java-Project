@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class StartApp extends JFrame {
+
     StartApp() {
         // Set the background image
         ImageIcon image = new ImageIcon(ClassLoader.getSystemResource("images/pkcomputer.jpg"));
@@ -13,14 +14,15 @@ public class StartApp extends JFrame {
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         setTitle("Welcome to PK Computer | Electricity Bill Management");
         setSize(600, 600);
+        setResizable(false);
         setLocationRelativeTo(null);
         setVisible(true);
-        try{
+        try {
             Thread.sleep(3000);
             setVisible(false);
-
+            Database.connect();
             new Login();
-        }catch (Exception e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
