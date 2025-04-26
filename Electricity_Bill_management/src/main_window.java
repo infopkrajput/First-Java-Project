@@ -6,7 +6,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class main_window extends JFrame {
-    JMenuItem newCustomer, generateBill, viewBill, pendingBill;
 
     main_window() {
         JFrame frame = new JFrame();
@@ -26,7 +25,6 @@ public class main_window extends JFrame {
 
         generateBill = menu.add(createMenuItem("Generate Bill", "images/generateBill.png", e -> new generateBill()));
         viewBill = menu.add(createMenuItem("View Bill", "images/viewBill.png", e -> new viewBill()));
-        pendingBill = menu.add(createMenuItem("Pending Bills", "images/pendingBill.png", e -> System.out.println("Pending Bill logic here")));
 
         JMenu manage = new JMenu("Manage");
         manage.setFont(new Font("monospaced", Font.BOLD, 20));
