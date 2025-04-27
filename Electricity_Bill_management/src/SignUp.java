@@ -287,7 +287,6 @@ public class SignUp extends JFrame implements ActionListener {
 
             if (!isValid) {
                 JOptionPane.showMessageDialog(null, "Please fill all fields correctly.");
-
                 return;
             }
 

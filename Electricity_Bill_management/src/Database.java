@@ -32,6 +32,22 @@ public class Database {
             stmt.executeUpdate(createTableQuery);
             System.out.println("Table checked/created: signup");
 
+            String createCustomerTable = "CREATE TABLE IF NOT EXISTS customer (\n" +
+                    "    account_id CHAR(8) PRIMARY KEY,\n" +
+                    "    name VARCHAR(100) NOT NULL,\n" +
+                    "    address VARCHAR(255) NOT NULL,\n" +
+                    "    city VARCHAR(100) NOT NULL,\n" +
+                    "    pin_code CHAR(6) NOT NULL,\n" +
+                    "    mobile_number CHAR(10) NOT NULL,\n" +
+                    "    state VARCHAR(100) NOT NULL,\n" +
+                    "    id_proof_type VARCHAR(50) NOT NULL,\n" +
+                    "    id_proof_number VARCHAR(50) NOT NULL,\n" +
+                    "    meter_number CHAR(12) UNIQUE NOT NULL\n" +
+                    ");\n";
+            stmt.executeUpdate(createCustomerTable);
+            System.out.println("Table checked/customer: signup");
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }

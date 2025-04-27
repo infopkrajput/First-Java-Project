@@ -6,9 +6,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class main_window extends JFrame {
+    JMenuItem newCustomer, generateBill, viewBill, pendingBill, editCustomer, pendingBillReport,billWiseReport,closeWindows;
 
     main_window() {
-        JFrame frame = new JFrame();
 
         ImageIcon backgroundImage = new ImageIcon(ClassLoader.getSystemResource("images/bg.jpg"));
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -25,15 +25,21 @@ public class main_window extends JFrame {
 
         generateBill = menu.add(createMenuItem("Generate Bill", "images/generateBill.png", e -> new generateBill()));
         viewBill = menu.add(createMenuItem("View Bill", "images/viewBill.png", e -> new viewBill()));
+        pendingBill = menu.add(createMenuItem("Pending Bills", "images/pendingBill.png", e -> new pendingBill()));
 
         JMenu manage = new JMenu("Manage");
         manage.setFont(new Font("monospaced", Font.BOLD, 20));
         menuBar.add(manage);
+
         newCustomer = manage.add(createMenuItem("New Customer", "images/newCustomer.png", e -> new newCustomer()));
+        editCustomer = manage.add(createMenuItem("Edit Customer", "images/editCustomer.png", e -> new editCustomer()));
 
         JMenu report = new JMenu("Report");
         report.setFont(new Font("monospaced", Font.BOLD, 20));
         menuBar.add(report);
+
+        pendingBillReport = report.add(createMenuItem("Pending Bill Report", "images/editCustomer.png", e -> new pendingBillReport()));
+        billWiseReport = report.add(createMenuItem("Bill Wise Report ", "images/editCustomer.png", e -> new billWiseReport()));
 
         JMenu utility = new JMenu("Utility");
         utility.setFont(new Font("monospaced", Font.BOLD, 20));
@@ -43,25 +49,27 @@ public class main_window extends JFrame {
         close.setFont(new Font("monospaced", Font.BOLD, 20));
         menuBar.add(close);
 
+        closeWindows= close.add(createMenuItem("Exit", "images/editCustomer.png", e -> new billWiseReport()));
 
         setTitle("Electricity Bill Management | Ver: 1.0.1 | ");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setResizable(false);
         setVisible(true);
-        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        frame.addWindowListener(new WindowAdapter() {
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                showExitDialog(frame);
+                showExitDialog(main_window.this);
             }
         });
-        JRootPane rootPane = frame.getRootPane();
+
+        JRootPane rootPane = getRootPane();
         KeyStroke escKey = KeyStroke.getKeyStroke("ESCAPE");
         rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escKey, "exitApp");
 
         rootPane.getActionMap().put("exitApp", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showExitDialog(frame);
+                showExitDialog(main_window.this);
             }
         });
 
@@ -74,7 +82,6 @@ public class main_window extends JFrame {
 
         if (option == JOptionPane.YES_OPTION) {
             frame.dispose();
-            new Login();
         }
     }
 
