@@ -5,55 +5,51 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class newCustomer extends JFrame implements ActionListener {
-    JTextField meterNumber;
-    JButton submit, cancel;
+public class generateBill extends JFrame implements ActionListener {
 
-    newCustomer() {
-
+    generateBill() {
+        String title = "Generate Bill";
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int width = (int) (screenSize.width * 0.75);
         int height = (int) (screenSize.height * 0.75);
-        JFrame frame = new JFrame("New Customer");
-        frame.setSize(width, height);
-        frame.setLocationRelativeTo(null);
-        setResizable(false);
-        setLayout(null);
-        frame.setVisible(true);
-        frame.getContentPane().setBackground(new Color(83, 199, 224));
 
-        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        frame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                showExitDialog(frame);
-            }
-        });
+        JLabel heading = new JLabel(title);
+        heading.setFont(new Font("Arial", Font.BOLD, 30));
+        FontMetrics fm = heading.getFontMetrics(heading.getFont());
+        int textWidth = fm.stringWidth(heading.getText());
+        int x = (width - textWidth) / 2;
+        heading.setBounds(x, 30, textWidth, 30);
+        add(heading);
 
-        JRootPane rootPane = frame.getRootPane();
+
+        JRootPane rootPane = getRootPane();
         KeyStroke escKey = KeyStroke.getKeyStroke("ESCAPE");
         rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escKey, "exitApp");
+
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                showExitDialog(generateBill.this);
+            }
+        });
 
         rootPane.getActionMap().put("exitApp", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showExitDialog(frame);
+                showExitDialog(generateBill.this);
             }
         });
 
-        JLabel heading = new JLabel("New Customer");
-        heading.setFont(new Font("Arial", Font.BOLD, 30));
-        heading.setBounds(200, 10, 300, 30);
-        add(heading);
-
-        createLabel("Customer name: ", 20, 60, 180, 25);
-        meterNumber = createTextField(200, 60, 180, 25);
-
+        setSize(width, height);
+        setLocationRelativeTo(null);
+        setResizable(false);
+        setLayout(null);
+        setVisible(true);
 
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
 
     }
 
@@ -82,6 +78,6 @@ public class newCustomer extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-        new newCustomer();
+        new generateBill();
     }
 }
