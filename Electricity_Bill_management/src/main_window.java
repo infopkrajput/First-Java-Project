@@ -6,7 +6,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class main_window extends JFrame {
-    JMenuItem newCustomer, generateBill, viewBill, pendingBill, editCustomer, pendingBillReport,billWiseReport,closeWindows;
+    JMenuItem newCustomer, generateBill, viewBill, pendingBill, editCustomer, pendingBillReport, billWiseReport, closeWindows;
 
     main_window() {
 
@@ -49,7 +49,7 @@ public class main_window extends JFrame {
         close.setFont(new Font("monospaced", Font.BOLD, 20));
         menuBar.add(close);
 
-        closeWindows= close.add(createMenuItem("Exit", "images/editCustomer.png", e -> new billWiseReport()));
+        closeWindows = close.add(createMenuItem("Exit", "images/editCustomer.png", e -> new billWiseReport()));
 
         setTitle("Electricity Bill Management | Ver: 1.0.1 | ");
         setExtendedState(JFrame.MAXIMIZED_BOTH);

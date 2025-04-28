@@ -277,6 +277,15 @@ public class newCustomer extends JFrame implements ActionListener {
         return field;
     }
 
+    private static void showExitDialog(JFrame frame) {
+        int option = JOptionPane.showConfirmDialog(frame, "Are you sure you want to exit?",
+                "Confirm Exit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+        if (option == JOptionPane.YES_OPTION) {
+            frame.dispose();
+        }
+    }
+
     public JButton createButton(String name, int x, int y, int width, int height) {
         JButton button = new JButton(name);
         button.setBounds(x, y, width, height);
@@ -293,14 +302,6 @@ public class newCustomer extends JFrame implements ActionListener {
         return choice;
     }
 
-    private static void showExitDialog(JFrame frame) {
-        int option = JOptionPane.showConfirmDialog(frame, "Are you sure you want to exit?",
-                "Confirm Exit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-
-        if (option == JOptionPane.YES_OPTION) {
-            frame.dispose();
-        }
-    }
 
     public void addStates(Choice stateChoice) {
         String[] states = {
