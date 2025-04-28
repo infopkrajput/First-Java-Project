@@ -39,13 +39,14 @@ public class Database {
                     "    city VARCHAR(100) NOT NULL,\n" +
                     "    pin_code CHAR(6) NOT NULL,\n" +
                     "    mobile_number CHAR(10) NOT NULL,\n" +
+                    "    connection_type VARCHAR(20) NOT NULL,\n " +
                     "    state VARCHAR(100) NOT NULL,\n" +
                     "    id_proof_type VARCHAR(50) NOT NULL,\n" +
                     "    id_proof_number VARCHAR(50) NOT NULL,\n" +
                     "    meter_number CHAR(12) UNIQUE NOT NULL\n" +
                     ");\n";
             stmt.executeUpdate(createCustomerTable);
-            System.out.println("Table checked/customer: signup");
+            System.out.println("Table checked/customer: customer");
 
 
         } catch (Exception e) {

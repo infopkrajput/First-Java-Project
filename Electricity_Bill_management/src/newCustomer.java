@@ -5,7 +5,7 @@ import java.awt.event.*;
 import java.sql.ResultSet;
 
 public class newCustomer extends JFrame implements ActionListener {
-    Choice state, idProofType;
+    Choice state, idProofType, connectionType;
     JTextField name, address, city, pinCode, idProofNumber, meterNumberField, accountIdField, mobileNumber;
     JButton create, clear, back;
 
@@ -48,8 +48,12 @@ public class newCustomer extends JFrame implements ActionListener {
         addSuggestionText(pinCode, "Enter Pin Code here");
 
         createLabel("Mobile Number:", marginLeft, marginTop + (rowHeight + spacingY) * 5, labelWidth, rowHeight);
-        mobileNumber = createTextField(fieldX, marginTop + (rowHeight + spacingY) * 5, fieldWidth, rowHeight);
+        mobileNumber = createTextField(fieldX, marginTop + (rowHeight + spacingY) * 5, fieldWidth / 2, rowHeight);
         addSuggestionText(mobileNumber, "Enter Mobile Number here");
+
+        createLabel("Connection Type:", fieldX + (fieldWidth / 2) + 5, marginTop + (rowHeight + spacingY) * 5, (fieldWidth / 2) - (fieldWidth / 4) - 5, rowHeight);
+        connectionType = createChoice(fieldX + (fieldWidth / 2) + (fieldWidth / 4), marginTop + (rowHeight + spacingY) * 5, (fieldWidth / 2) - (fieldWidth / 4), rowHeight);
+        addConnectionType(connectionType);
 
         createLabel("Id Proof Type:", marginLeft, marginTop + (rowHeight + spacingY) * 6, labelWidth, rowHeight);
         idProofType = createChoice(fieldX, marginTop + (rowHeight + spacingY) * 6, fieldWidth, rowHeight);
@@ -58,6 +62,7 @@ public class newCustomer extends JFrame implements ActionListener {
         createLabel("Id Proof No.:", marginLeft, marginTop + (rowHeight + spacingY) * 7, labelWidth, rowHeight);
         idProofNumber = createTextField(fieldX, marginTop + (rowHeight + spacingY) * 7, fieldWidth, rowHeight);
         addSuggestionText(idProofNumber, "Enter Id Proof Number here");
+
 
         create = createButton("Create", marginLeft + 50, marginTop + (rowHeight + spacingY) * 8, fieldWidth / 3, rowHeight);
         create.addActionListener(this);
@@ -135,6 +140,19 @@ public class newCustomer extends JFrame implements ActionListener {
             String idProofTypeString = idProofType.getSelectedItem();
             String idProofNumberString = idProofNumber.getText();
             String stateString = state.getSelectedItem();
+            String connectionTypeString = connectionType.getSelectedItem();
+
+            if (connectionTypeString.equals("")) {
+                isCorrect = false;
+            }
+
+            if (stateString.equals("")) {
+                isCorrect = false;
+            }
+
+            if (idProofTypeString.equals("")) {
+                isCorrect = false;
+            }
 
             if (nameString.equals("Enter Customer name here")) {
                 addSuggestionText(name, "Customer name should not be empty");
@@ -227,7 +245,7 @@ public class newCustomer extends JFrame implements ActionListener {
                 // Format newAccountId to 8 digits with leading zeros
                 String accountIdString = String.format("%08d", newAccountId);
 
-                String insertCustomerQuery = "INSERT INTO customer (account_id, name, address, city, pin_code, mobile_number, state, id_proof_type, id_proof_number, meter_number)\n" + "VALUES ('" + accountIdString + "', '" + nameString + "', '" + addressString + "', '" + cityString + "', '" + pinCodeString + "', '" + mobileNumberString + "', '" + stateString + "', '" + idProofTypeString + "', '" + idProofNumberString + "', '" + meterNumberIncludingYearAndMonth + "')";
+                String insertCustomerQuery = "INSERT INTO customer (account_id, name, address, city, pin_code, mobile_number,connection_type, state, id_proof_type, id_proof_number, meter_number)\n" + "VALUES ('" + accountIdString + "', '" + nameString + "', '" + addressString + "', '" + cityString + "', '" + pinCodeString + "', '" + mobileNumberString + "','" + connectionTypeString + "', '" + stateString + "', '" + idProofTypeString + "', '" + idProofNumberString + "', '" + meterNumberIncludingYearAndMonth + "')";
                 Database.getStatement().executeUpdate(insertCustomerQuery);
                 JOptionPane.showMessageDialog(null, "Account Created Successfully ");
 
@@ -314,6 +332,15 @@ public class newCustomer extends JFrame implements ActionListener {
         };
         for (String s : states) {
             stateChoice.add(s);
+        }
+    }
+
+    public void addConnectionType(Choice connect0) {
+        String[] types = {
+                "", "Individual", "Corporate"
+        };
+        for (String s : types) {
+            connect0.add(s);
         }
     }
 
