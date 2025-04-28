@@ -138,6 +138,7 @@ public class editCustomer extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "Enter correct account id", "Not Found", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 boolean isCorrect = true;
+                String accountIdString = accountId.getText();
                 String nameString = name.getText();
                 String addressString = address.getText();
                 String cityString = city.getText();
@@ -218,8 +219,8 @@ public class editCustomer extends JFrame implements ActionListener {
                 }
 
                 try {
-                    String insertCustomerQuery = "UPDATE customer SET name = '" + nameString + "' , address = '" + addressString + "', city = '" + cityString + "',pin_code = '" + pinCodeString + "', mobile_number = '" + mobileNumberString + "',state = '" + stateString + "',id_proof_type = '" + idProofTypeString + "',id_proof_number = '" + idProofNumberString + "',meter_number = '" + meterNumberString + "'  ";
-                    Database.getStatement().executeUpdate(insertCustomerQuery);
+                    String modifyDetail = "UPDATE customer SET name = '" + nameString + "' , address = '" + addressString + "', city = '" + cityString + "', pin_code = '" + pinCodeString + "', mobile_number = '" + mobileNumberString + "',state = '" + stateString + "', id_proof_type = '" + idProofTypeString + "', id_proof_number = '" + idProofNumberString + "', meter_number = '" + meterNumberString + "' where account_id = '"+ accountIdString+"'  ";
+                    Database.getStatement().executeUpdate(modifyDetail);
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
                 }

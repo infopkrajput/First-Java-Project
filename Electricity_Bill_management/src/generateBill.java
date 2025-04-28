@@ -21,7 +21,6 @@ public class generateBill extends JFrame implements ActionListener {
         heading.setBounds(x, 30, textWidth, 30);
         add(heading);
 
-
         JRootPane rootPane = getRootPane();
         KeyStroke escKey = KeyStroke.getKeyStroke("ESCAPE");
         rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escKey, "exitApp");

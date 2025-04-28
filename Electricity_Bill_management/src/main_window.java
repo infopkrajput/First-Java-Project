@@ -49,7 +49,22 @@ public class main_window extends JFrame {
         close.setFont(new Font("monospaced", Font.BOLD, 20));
         menuBar.add(close);
 
-        closeWindows = close.add(createMenuItem("Exit", "images/editCustomer.png", e -> new billWiseReport()));
+        JMenuItem exit = new JMenuItem("Exit");
+        exit.setFont(new Font("monospaced", Font.BOLD, 18));
+        ImageIcon icon = new ImageIcon(ClassLoader.getSystemResource("images/exit.png"));
+        Image scaledImage = icon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+        exit.setIcon(new ImageIcon(scaledImage));
+        exit.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int option = JOptionPane.showConfirmDialog(exit, "Are you sure you want to exit?",
+                        "Confirm Exit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+                if (option == JOptionPane.YES_OPTION) {
+                    System.exit(0);
+                }
+            }
+        });
+        close.add(exit);
 
         setTitle("Electricity Bill Management | Ver: 1.0.1 | ");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
