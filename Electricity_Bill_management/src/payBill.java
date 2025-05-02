@@ -174,7 +174,6 @@ public class payBill extends JFrame implements ActionListener {
                         billNumbers.setText(billNumber + " ");
                     } else {
                         JOptionPane.showMessageDialog(this, "No Pending bill found for the entered Account ID.", "Not Found", JOptionPane.INFORMATION_MESSAGE);
-
                     }
 
                 } else {

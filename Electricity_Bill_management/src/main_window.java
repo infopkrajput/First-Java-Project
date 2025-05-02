@@ -6,7 +6,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class main_window extends JFrame {
-    JMenuItem newCustomer, generateBill, viewBill, payBill, editCustomer, payBillReport, billWiseReport, closeWindows;
+    JMenuItem newCustomer, generateBill, viewBill, payBill, editCustomer, payBillReport, billWiseReport,viewCustomers;
 
     main_window() {
 
@@ -33,6 +33,7 @@ public class main_window extends JFrame {
 
         newCustomer = manage.add(createMenuItem("New Customer", "images/newCustomer.png", e -> new newCustomer()));
         editCustomer = manage.add(createMenuItem("Edit Customer", "images/editCustomer.png", e -> new editCustomer()));
+        viewCustomers = manage.add(createMenuItem("View Customers", "images/viewCustomer.png", e -> new viewCustomer()));
 
         JMenu report = new JMenu("Report");
         report.setFont(new Font("monospaced", Font.BOLD, 20));
