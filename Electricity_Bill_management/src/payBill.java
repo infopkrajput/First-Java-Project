@@ -2,18 +2,16 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.Date;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
-public class generateBill extends JFrame implements ActionListener {
+public class payBill extends JFrame implements ActionListener {
 
-    JTextField name, address, city, pinCode, accountId, mobileNumber, totalConsumedUnits, connectionType, totalBilled, billNumber;
-    JButton check, createBill, close;
+    JTextField name, address, city, pinCode, accountId, mobileNumber, connectionType, totalBilled, billNumbers;
+    JButton open, paid, close;
     Choice state;
 
-    generateBill() {
-        String title = "Generate Bill";
+    payBill() {
+        String title = "Pay Bill";
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int width = (int) (screenSize.width * 0.75);
         int height = (int) (screenSize.height * 0.75);
@@ -32,16 +30,16 @@ public class generateBill extends JFrame implements ActionListener {
         accountId = createTextField(fieldX, marginTop, fieldWidth / 2, rowHeight);
         addSuggestionText(accountId, "Enter Account Id");
 
-        check = createButton("Check", fieldX + fieldWidth - (fieldWidth / 2) + 50, marginTop, fieldWidth / 4, rowHeight);
-        check.addActionListener(this);
+        open = createButton("Open", fieldX + fieldWidth - (fieldWidth / 2) + 50, marginTop, fieldWidth / 4, rowHeight);
+        open.addActionListener(this);
 
-        createLabel("Units Consumed: ", marginLeft, marginTop + (rowHeight + spacingY), labelWidth, rowHeight);
-        totalConsumedUnits = createTextField(fieldX, marginTop + (rowHeight + spacingY), fieldWidth / 2, rowHeight);
-        addSuggestionText(totalConsumedUnits, "Enter Total units");
+        createLabel("Total Bill Amount :", marginLeft, marginTop + (rowHeight + spacingY), labelWidth, rowHeight);
+        totalBilled = createTextField(fieldX, marginTop + (rowHeight + spacingY), fieldWidth / 4, rowHeight);
+        totalBilled.setEditable(false);
 
-        createLabel("Connection type: ", fieldX + (fieldWidth / 2) + 5, marginTop + (rowHeight + spacingY), (fieldWidth / 2) - (fieldWidth / 4) - 5, rowHeight);
-        connectionType = createTextField(fieldX + (fieldWidth / 2) + (fieldWidth / 4), marginTop + (rowHeight + spacingY), (fieldWidth / 2) - (fieldWidth / 4), rowHeight);
-        connectionType.setEditable(false);
+        createLabel("Bill No:", fieldX + fieldWidth / 4 + 20, marginTop + (rowHeight + spacingY), fieldWidth / 2, rowHeight);
+        billNumbers = createTextField(fieldX + fieldWidth / 2 - 40, marginTop + (rowHeight + spacingY), fieldWidth / 2 + 40, rowHeight);
+        billNumbers.setEditable(false);
 
         createLabel("Customer name:", marginLeft, marginTop + (rowHeight + spacingY) * 2, labelWidth, rowHeight);
         name = createTextField(fieldX, marginTop + (rowHeight + spacingY) * 2, fieldWidth, rowHeight);
@@ -68,19 +66,22 @@ public class generateBill extends JFrame implements ActionListener {
         mobileNumber = createTextField(fieldX, marginTop + (rowHeight + spacingY) * 7, fieldWidth, rowHeight);
         mobileNumber.setEditable(false);
 
-        createBill = createButton("Create", marginLeft, marginTop + (rowHeight + spacingY) * 8, fieldWidth / 4, rowHeight);
-        createBill.addActionListener(this);
+        paid = createButton("Pay", marginLeft, marginTop + (rowHeight + spacingY) * 8, fieldWidth / 4, rowHeight);
+        paid.addActionListener(this);
 
         close = createButton("Close", marginLeft + fieldWidth / 4 + 10, marginTop + (rowHeight + spacingY) * 8, fieldWidth / 4, rowHeight);
         close.addActionListener(this);
 
-        createLabel("Total Bill Amount:", fieldX, marginTop + (rowHeight + spacingY) * 8, fieldWidth / 4, rowHeight);
-        totalBilled = createTextField(fieldX + fieldWidth / 4 + 10, marginTop + (rowHeight + spacingY) * 8, fieldWidth / 4, rowHeight);
-        totalBilled.setEditable(false);
+        int imageSize = Math.min(width - (fieldX + fieldWidth + 100), height / 2);
+        int imageX = fieldX + fieldWidth + ((width - (fieldX + fieldWidth)) - imageSize) / 2;
+        int imageY = (height - imageSize) / 2;
 
-        createLabel("Bill Number:", fieldX + fieldWidth / 2 + 20, marginTop + (rowHeight + spacingY) * 8, fieldWidth / 4 - 30, rowHeight);
-        billNumber = createTextField(fieldX + fieldWidth / 2 + fieldWidth / 4 - 30, marginTop + (rowHeight + spacingY) * 8, fieldWidth / 4 + 30, rowHeight);
-        billNumber.setEditable(false);
+        ImageIcon image = new ImageIcon(ClassLoader.getSystemResource("images/payBill.png"));
+        Image imageScale = image.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
+        ImageIcon imageFinal = new ImageIcon(imageScale);
+        JLabel imageLabel = new JLabel(imageFinal);
+        imageLabel.setBounds(imageX, imageY, imageSize, imageSize);
+        add(imageLabel);
 
         JLabel heading = new JLabel(title);
         heading.setFont(new Font("Arial", Font.BOLD, 30));
@@ -97,27 +98,16 @@ public class generateBill extends JFrame implements ActionListener {
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                showExitDialog(generateBill.this);
+                showExitDialog(payBill.this);
             }
         });
 
         rootPane.getActionMap().put("exitApp", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showExitDialog(generateBill.this);
+                showExitDialog(payBill.this);
             }
         });
-
-        int imageSize = Math.min(width - (fieldX + fieldWidth + 100), height / 2);
-        int imageX = fieldX + fieldWidth + ((width - (fieldX + fieldWidth)) - imageSize) / 2;
-        int imageY = (height - imageSize) / 2;
-
-        ImageIcon image = new ImageIcon(ClassLoader.getSystemResource("images/generatingBill.png"));
-        Image imageScale = image.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
-        ImageIcon imageFinal = new ImageIcon(imageScale);
-        JLabel imageLabel = new JLabel(imageFinal);
-        imageLabel.setBounds(imageX, imageY, imageSize, imageSize);
-        add(imageLabel);
 
         setSize(width, height);
         setLocationRelativeTo(null);
@@ -129,13 +119,15 @@ public class generateBill extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == check) {
+        if (e.getSource() == open) {
             Border redBorder = BorderFactory.createLineBorder(Color.RED, 2);
             Border greenBorder = BorderFactory.createLineBorder(Color.green, 2);
             Border normalBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
 
             boolean isCorrect = true;
+
             String accountIdString = accountId.getText();
+
             if (accountIdString.equals("Enter Account Id")) {
                 accountId.setBorder(redBorder);
                 isCorrect = false;
@@ -149,17 +141,41 @@ public class generateBill extends JFrame implements ActionListener {
             }
 
             try {
-                String query = "select * from customer where account_id = '" + accountIdString + "' ";
+
+                String query = "SELECT * from customer where account_id = '" + accountIdString + "' ";
                 ResultSet rs0 = Database.getStatement().executeQuery(query);
+
                 if (rs0.next()) {
                     accountId.setBorder(greenBorder);
-                    connectionType.setText(rs0.getString("connection_type"));
                     name.setText(rs0.getString("name"));
                     address.setText(rs0.getString("address"));
                     city.setText(rs0.getString("city"));
                     pinCode.setText(rs0.getString("pin_code"));
                     mobileNumber.setText(rs0.getString("mobile_number"));
                     state.select(rs0.getString("state"));
+
+                    double amount = 0;
+                    String amountInString = "";
+                    String billNumber = "";
+                    String billCheck = "";
+                    String billQuery = "SELECT * from transaction where account_id = '" + accountIdString + "' ";
+                    ResultSet rs1 = Database.getStatement().executeQuery(billQuery);
+                    if (rs1.next()) {
+                        while (rs1.next()) {
+                            billCheck = rs1.getString("payment_status");
+                            if (billCheck.equals("NO")) {
+                                amountInString = rs1.getString("amount");
+                                amount += Double.valueOf(amountInString);
+                                billNumber += rs1.getString("bill_number");
+                                billNumber += " ";
+                            }
+                        }
+                        totalBilled.setText(String.valueOf(amount));
+                        billNumbers.setText(billNumber + " ");
+                    } else {
+                        JOptionPane.showMessageDialog(this, "No Pending bill found for the entered Account ID.", "Not Found", JOptionPane.INFORMATION_MESSAGE);
+
+                    }
 
                 } else {
                     addSuggestionText(accountId, "Account ID not found");
@@ -179,106 +195,18 @@ public class generateBill extends JFrame implements ActionListener {
                 ECheck.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Error fetching data! Database connection.", "Error", JOptionPane.ERROR_MESSAGE);
             }
-        }
-
-        if (e.getSource() == createBill) {
-            Border redBorder = BorderFactory.createLineBorder(Color.RED, 2);
-            Border greenBorder = BorderFactory.createLineBorder(Color.green, 2);
-            Border normalBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
-
-            Date todayDate = new Date(System.currentTimeMillis());
-
-            String accountIdString = accountId.getText();
-            String totalConsumedUnitsString = totalConsumedUnits.getText();
-            String connectionTypeString = connectionType.getText();
-            String billNumberString = "";
-
-            double rate_per_unit = 0, total_amount = 0;
-            double totalConsumedUnitsDouble = 0;
-            boolean isCorrect = true;
-
-            if (totalConsumedUnitsString.equals("Enter Total units")) {
-                totalConsumedUnits.setBorder(redBorder);
-                accountId.setBorder(redBorder);
-                isCorrect = false;
-                JOptionPane.showMessageDialog(null, "Please Enter the account id and click on check.\nThen enter total unit.");
-                return;
-            } else {
-                totalConsumedUnits.setBorder(normalBorder);
-            }
-
-            try {
-                totalConsumedUnitsDouble = Double.parseDouble(totalConsumedUnitsString);
-            } catch (NumberFormatException ed) {
-                ed.printStackTrace();
-            }
-
-            if (accountIdString.equals("Enter Account Id")) {
-                accountId.setBorder(redBorder);
-                isCorrect = false;
-                JOptionPane.showMessageDialog(null, "Please Enter the account id and click on check.");
-                return;
-            } else {
-                accountId.setBorder(normalBorder);
-            }
-
-
-            if (!isCorrect) {
-                JOptionPane.showMessageDialog(null, "Please fill all fields correctly.");
-                return;
-            }
-
-            if (connectionTypeString.equals("Individual")) {
-                rate_per_unit = 5.5;
-                total_amount = totalConsumedUnitsDouble * rate_per_unit;
-            } else if (connectionTypeString.equals("Corporate")) {
-                rate_per_unit = 8.5;
-                total_amount = totalConsumedUnitsDouble * rate_per_unit;
-            }
-
-            try {
-                String billQuery = "SELECT COALESCE(MAX(RIGHT(bill_number, 8)),'00000000') AS bill_number_max FROM transaction";
-                ResultSet rs0 = Database.getStatement().executeQuery(billQuery);
-                int newBillNUmber = 1;
-                if (rs0.next()) {
-                    String maxBillNumber = rs0.getString("bill_number_max");
-                    if (maxBillNumber != null) {
-                        newBillNUmber = Integer.parseInt(maxBillNumber) + 1;
-                    }
-                }
-
-                String billNumberStringGenerated = String.format("%08d", newBillNUmber);
-                String seriesOfBill = "T";
-
-                billNumberString = seriesOfBill + billNumberStringGenerated;
-
-                String query = "INSERT INTO transaction (account_id,date_of_transaction,unit,rate_per_unit,amount,bill_number,payment_status)\n" +
-                        "VALUES('" + accountIdString + "','" + todayDate.toString() + "','" + String.valueOf(totalConsumedUnitsDouble) + "','" + String.valueOf(rate_per_unit) + "','" + String.valueOf(total_amount) + "','" + billNumberString + "','"+"NO"+"' )";
-
-                Database.getStatement().executeUpdate(query);
-                totalConsumedUnits.setText("");
-                accountId.setText("");
-                connectionType.setText("");
-                name.setText("");
-                address.setText("");
-                city.setText("");
-                pinCode.setText("");
-                mobileNumber.setText("");
-                state.select(0);
-
-                totalBilled.setText(String.valueOf(total_amount));
-                billNumber.setText(billNumberString);
-
-                JOptionPane.showMessageDialog(null, "Bill Generated Successfully! of " + total_amount);
-
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
 
         }
+
+        if (e.getSource() == paid) {
+
+
+        }
+
         if (e.getSource() == close) {
-            showExitDialog(generateBill.this);
+            showExitDialog(payBill.this);
         }
+
     }
 
     public void createLabel(String labelName, int x, int y, int width, int height) {
@@ -327,13 +255,12 @@ public class generateBill extends JFrame implements ActionListener {
         });
     }
 
-    public static boolean isOnlyDigits(String str) {
-        try {
-            Long.parseLong(str);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
+    public JButton createButton(String name, int x, int y, int width, int height) {
+        JButton button = new JButton(name);
+        button.setBounds(x, y, width, height);
+        button.setFont(new Font("Arial", Font.PLAIN, 20));
+        add(button);
+        return button;
     }
 
     public Choice createChoice(int x, int y, int width, int height) {
@@ -342,14 +269,6 @@ public class generateBill extends JFrame implements ActionListener {
         choice.setFont(new Font("Arial", Font.PLAIN, 20));
         add(choice);
         return choice;
-    }
-
-    public JButton createButton(String name, int x, int y, int width, int height) {
-        JButton button = new JButton(name);
-        button.setBounds(x, y, width, height);
-        button.setFont(new Font("Arial", Font.PLAIN, 20));
-        add(button);
-        return button;
     }
 
     public void addStates(Choice stateChoice) {
@@ -367,6 +286,6 @@ public class generateBill extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-        new generateBill();
+        new payBill();
     }
 }

@@ -30,7 +30,7 @@ public class Database {
                     "    usertype VARCHAR(20) NOT NULL\n" +
                     ");";
             stmt.executeUpdate(createTableQuery);
-            System.out.println("Table checked/created: signup");
+            System.out.println("Table ''users' ");
 
             String createCustomerTable = "CREATE TABLE IF NOT EXISTS customer (\n" +
                     "    account_id CHAR(8) PRIMARY KEY,\n" +
@@ -43,10 +43,22 @@ public class Database {
                     "    state VARCHAR(100) NOT NULL,\n" +
                     "    id_proof_type VARCHAR(50) NOT NULL,\n" +
                     "    id_proof_number VARCHAR(50) NOT NULL,\n" +
-                    "    meter_number CHAR(12) UNIQUE NOT NULL\n" +
+                    "    meter_number CHAR(12) UNIQUE NOT NULL,\n" +
+                    "    date_of_issue DATE\n" +
                     ");\n";
             stmt.executeUpdate(createCustomerTable);
-            System.out.println("Table checked/customer: customer");
+            System.out.println("Table 'customer' created successfully!");
+            String createTransactionTable = "CREATE TABLE IF NOT EXISTS transaction ("
+                    + "account_id VARCHAR(8) , "
+                    + "date_of_transaction DATE, "
+                    + "unit FLOAT(6,2),"
+                    + "rate_per_unit FLOAT(4,2),"
+                    + "amount FLOAT(8,2),"
+                    + "bill_number VARCHAR(9),"
+                    + "payment_status VARCHAR(3) "
+                    + ")";
+            stmt.executeUpdate(createTransactionTable);
+            System.out.println("Table 'transaction' created successfully!");
 
 
         } catch (Exception e) {

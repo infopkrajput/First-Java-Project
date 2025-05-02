@@ -3,6 +3,7 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.ResultSet;
+import java.sql.Date;
 
 public class newCustomer extends JFrame implements ActionListener {
     Choice state, idProofType, connectionType;
@@ -51,7 +52,7 @@ public class newCustomer extends JFrame implements ActionListener {
         mobileNumber = createTextField(fieldX, marginTop + (rowHeight + spacingY) * 5, fieldWidth / 2, rowHeight);
         addSuggestionText(mobileNumber, "Enter Mobile Number here");
 
-        createLabel("Connection Type:", fieldX + (fieldWidth / 2) + 5, marginTop + (rowHeight + spacingY) * 5, (fieldWidth / 2) - (fieldWidth / 4) - 5, rowHeight);
+        createLabel("Type:", fieldX + (fieldWidth / 2) + 5, marginTop + (rowHeight + spacingY) * 5, (fieldWidth / 2) - (fieldWidth / 3) , rowHeight);
         connectionType = createChoice(fieldX + (fieldWidth / 2) + (fieldWidth / 4), marginTop + (rowHeight + spacingY) * 5, (fieldWidth / 2) - (fieldWidth / 4), rowHeight);
         addConnectionType(connectionType);
 
@@ -142,6 +143,8 @@ public class newCustomer extends JFrame implements ActionListener {
             String stateString = state.getSelectedItem();
             String connectionTypeString = connectionType.getSelectedItem();
 
+            java.sql.Date tdate = new java.sql.Date(System.currentTimeMillis());
+
             if (connectionTypeString.equals("")) {
                 isCorrect = false;
             }
@@ -230,9 +233,9 @@ public class newCustomer extends JFrame implements ActionListener {
                 String meterNumberString = String.format("%06d", newMeterNumber);
                 String yearMonth = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMM"));
                 String meterNumberIncludingYearAndMonth = yearMonth + meterNumberString;
+
                 String accountIdVerify = "SELECT COALESCE(MAX(account_id), '00000000') AS max_account_id FROM customer";
                 ResultSet rs = Database.getStatement().executeQuery(accountIdVerify);
-
                 int newAccountId = 1; // default first account id
 
                 if (rs.next()) {
@@ -245,7 +248,7 @@ public class newCustomer extends JFrame implements ActionListener {
                 // Format newAccountId to 8 digits with leading zeros
                 String accountIdString = String.format("%08d", newAccountId);
 
-                String insertCustomerQuery = "INSERT INTO customer (account_id, name, address, city, pin_code, mobile_number,connection_type, state, id_proof_type, id_proof_number, meter_number)\n" + "VALUES ('" + accountIdString + "', '" + nameString + "', '" + addressString + "', '" + cityString + "', '" + pinCodeString + "', '" + mobileNumberString + "','" + connectionTypeString + "', '" + stateString + "', '" + idProofTypeString + "', '" + idProofNumberString + "', '" + meterNumberIncludingYearAndMonth + "')";
+                String insertCustomerQuery = "INSERT INTO customer (account_id, name, address, city, pin_code, mobile_number,connection_type, state, id_proof_type, id_proof_number, meter_number,date_of_issue)\n" + "VALUES ('" + accountIdString + "', '" + nameString + "', '" + addressString + "', '" + cityString + "', '" + pinCodeString + "', '" + mobileNumberString + "','" + connectionTypeString + "', '" + stateString + "', '" + idProofTypeString + "', '" + idProofNumberString + "', '" + meterNumberIncludingYearAndMonth + "','" + tdate.toString() + "')";
                 Database.getStatement().executeUpdate(insertCustomerQuery);
                 JOptionPane.showMessageDialog(null, "Account Created Successfully ");
 
@@ -259,7 +262,6 @@ public class newCustomer extends JFrame implements ActionListener {
                 mobileNumber.setText("");
                 state.select(0);
                 idProofType.select(0);
-
 
             } catch (Exception ex) {
                 ex.printStackTrace();

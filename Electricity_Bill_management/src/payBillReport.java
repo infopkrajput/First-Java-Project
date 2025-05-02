@@ -5,9 +5,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class pendingBillReport extends JFrame implements ActionListener {
+public class payBillReport extends JFrame implements ActionListener {
 
-    pendingBillReport() {
+    payBillReport() {
         String title = "Generate Bill";
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int width = (int) (screenSize.width * 0.75);
@@ -29,14 +29,14 @@ public class pendingBillReport extends JFrame implements ActionListener {
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                showExitDialog(pendingBillReport.this);
+                showExitDialog(payBillReport.this);
             }
         });
 
         rootPane.getActionMap().put("exitApp", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showExitDialog(pendingBillReport.this);
+                showExitDialog(payBillReport.this);
             }
         });
 
@@ -78,6 +78,6 @@ public class pendingBillReport extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-        new pendingBillReport();
+        new payBillReport();
     }
 }

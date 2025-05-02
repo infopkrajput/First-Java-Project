@@ -6,7 +6,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class main_window extends JFrame {
-    JMenuItem newCustomer, generateBill, viewBill, pendingBill, editCustomer, pendingBillReport, billWiseReport, closeWindows;
+    JMenuItem newCustomer, generateBill, viewBill, payBill, editCustomer, payBillReport, billWiseReport, closeWindows;
 
     main_window() {
 
@@ -25,7 +25,7 @@ public class main_window extends JFrame {
 
         generateBill = menu.add(createMenuItem("Generate Bill", "images/generateBill.png", e -> new generateBill()));
         viewBill = menu.add(createMenuItem("View Bill", "images/viewBill.png", e -> new viewBill()));
-        pendingBill = menu.add(createMenuItem("Pending Bills", "images/pendingBill.png", e -> new pendingBill()));
+        payBill = menu.add(createMenuItem("Pay Bill", "images/payBill.png", e -> new payBill()));
 
         JMenu manage = new JMenu("Manage");
         manage.setFont(new Font("monospaced", Font.BOLD, 20));
@@ -38,7 +38,7 @@ public class main_window extends JFrame {
         report.setFont(new Font("monospaced", Font.BOLD, 20));
         menuBar.add(report);
 
-        pendingBillReport = report.add(createMenuItem("Pending Bill Report", "images/editCustomer.png", e -> new pendingBillReport()));
+        payBillReport = report.add(createMenuItem("Pending Bill Report", "images/editCustomer.png", e -> new payBillReport()));
         billWiseReport = report.add(createMenuItem("Bill Wise Report ", "images/editCustomer.png", e -> new billWiseReport()));
 
         JMenu utility = new JMenu("Utility");
@@ -54,11 +54,11 @@ public class main_window extends JFrame {
         ImageIcon icon = new ImageIcon(ClassLoader.getSystemResource("images/exit.png"));
         Image scaledImage = icon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
         exit.setIcon(new ImageIcon(scaledImage));
+
         exit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int option = JOptionPane.showConfirmDialog(exit, "Are you sure you want to exit?",
                         "Confirm Exit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-
                 if (option == JOptionPane.YES_OPTION) {
                     System.exit(0);
                 }
@@ -87,16 +87,13 @@ public class main_window extends JFrame {
                 showExitDialog(main_window.this);
             }
         });
-
-
     }
 
     private static void showExitDialog(JFrame frame) {
         int option = JOptionPane.showConfirmDialog(frame, "Are you sure you want to exit?",
                 "Confirm Exit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-
         if (option == JOptionPane.YES_OPTION) {
-            frame.dispose();
+            System.exit(0);
         }
     }
 

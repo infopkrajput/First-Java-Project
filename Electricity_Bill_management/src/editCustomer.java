@@ -8,7 +8,7 @@ import java.sql.SQLException;
 public class editCustomer extends JFrame implements ActionListener {
 
     Choice state, idProofType;
-    JTextField name, address, city, pinCode, idProofNumber, meterNumberField, accountId, mobileNumber;
+    JTextField name, address, city, pinCode, idProofNumber, meterNumberField, accountId, mobileNumber, dateToday;
     JButton submit, check, back;
 
     editCustomer() {
@@ -31,7 +31,7 @@ public class editCustomer extends JFrame implements ActionListener {
         accountId = createTextField(fieldX, marginTop, fieldWidth - (fieldWidth / 2), rowHeight);
         accountId.setText("Enter Customer account Id here");
         accountId.setForeground(new Color(153, 153, 153));
-        addSuggestionText(accountId, "Enter Customer account id here");
+        addSuggestionText(accountId, "Enter Customer account id");
 
         check = createButton("Check", fieldX + fieldWidth - (fieldWidth / 2) + 50, marginTop, fieldWidth / 3, rowHeight);
         check.addActionListener(this);
@@ -62,9 +62,12 @@ public class editCustomer extends JFrame implements ActionListener {
         createLabel("Id Proof No.:", marginLeft, marginTop + (rowHeight + spacingY) * 8, labelWidth, rowHeight);
         idProofNumber = createTextField(fieldX, marginTop + (rowHeight + spacingY) * 8, fieldWidth, rowHeight);
 
-
         createLabel("Meter Number:", marginLeft, marginTop + (rowHeight + spacingY) * 9, labelWidth, rowHeight);
-        meterNumberField = createTextField(fieldX, marginTop + (rowHeight + spacingY) * 9, fieldWidth, rowHeight);
+        meterNumberField = createTextField(fieldX, marginTop + (rowHeight + spacingY) * 9, fieldWidth / 2, rowHeight);
+
+        createLabel("Issue Date: ", fieldX + (fieldWidth / 2) + 5, marginTop + (rowHeight + spacingY) * 9, (fieldWidth / 2) - (fieldWidth / 4) - 5, rowHeight);
+        dateToday = createTextField(fieldX + (fieldWidth / 2) + (fieldWidth / 4), marginTop + (rowHeight + spacingY) * 9, (fieldWidth / 2) - (fieldWidth / 4), rowHeight);
+
 
         submit = createButton("Submit", marginLeft + 100, marginTop + (rowHeight + spacingY) * 10, fieldWidth / 3, rowHeight);
         submit.addActionListener(this);
@@ -80,6 +83,7 @@ public class editCustomer extends JFrame implements ActionListener {
         idProofType.setEnabled(false);
         meterNumberField.setEditable(false);
         idProofNumber.setEditable(false);
+        dateToday.setEditable(false);
 
         JLabel heading = new JLabel(title);
         heading.setFont(new Font("Arial", Font.BOLD, 30));
@@ -205,11 +209,11 @@ public class editCustomer extends JFrame implements ActionListener {
                     mobileNumber.setBorder(redBorder);
                     isCorrect = false;
                 }
-                if(meterNumberString.equals("")){
-                    addSuggestionText(meterNumberField,"Meter number number should not empty");
+                if (meterNumberString.equals("")) {
+                    addSuggestionText(meterNumberField, "Meter number number should not empty");
                     meterNumberField.setBorder(redBorder);
                     isCorrect = false;
-                }else{
+                } else {
                     idProofNumber.setBorder(normalBorder);
                 }
 
@@ -219,7 +223,7 @@ public class editCustomer extends JFrame implements ActionListener {
                 }
 
                 try {
-                    String modifyDetail = "UPDATE customer SET name = '" + nameString + "' , address = '" + addressString + "', city = '" + cityString + "', pin_code = '" + pinCodeString + "', mobile_number = '" + mobileNumberString + "',state = '" + stateString + "', id_proof_type = '" + idProofTypeString + "', id_proof_number = '" + idProofNumberString + "', meter_number = '" + meterNumberString + "' where account_id = '"+ accountIdString+"'  ";
+                    String modifyDetail = "UPDATE customer SET name = '" + nameString + "' , address = '" + addressString + "', city = '" + cityString + "', pin_code = '" + pinCodeString + "', mobile_number = '" + mobileNumberString + "',state = '" + stateString + "', id_proof_type = '" + idProofTypeString + "', id_proof_number = '" + idProofNumberString + "', meter_number = '" + meterNumberString + "' where account_id = '" + accountIdString + "'  ";
                     Database.getStatement().executeUpdate(modifyDetail);
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
@@ -277,6 +281,7 @@ public class editCustomer extends JFrame implements ActionListener {
                     mobileNumber.setText(rs0.getString("mobile_number"));
                     idProofNumber.setText(rs0.getString("id_proof_number"));
                     meterNumberField.setText(rs0.getString("meter_number"));
+                    dateToday.setText(rs0.getString("date_of_issue"));
 
                     state.select(rs0.getString("state"));
                     idProofType.select(rs0.getString("id_proof_type"));
