@@ -12,13 +12,11 @@ public class Database {
 
     public static void connect() {
         try {
-            // Create DB if not exists
             conn = DriverManager.getConnection(jdbcUrl, user, password);
             stmt = conn.createStatement();
             stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + dbName);
             System.out.println("Database checked/created: " + dbName);
 
-            // Reconnect to the specific DB
             conn = DriverManager.getConnection(jdbcUrl + dbName, user, password);
             stmt = conn.createStatement();
 
@@ -29,6 +27,7 @@ public class Database {
                     "    password VARCHAR(30) NOT NULL,\n" +
                     "    usertype VARCHAR(20) NOT NULL\n" +
                     ");";
+
             stmt.executeUpdate(createTableQuery);
             System.out.println("Table ''users' ");
 
@@ -46,6 +45,7 @@ public class Database {
                     "    meter_number CHAR(12) UNIQUE NOT NULL,\n" +
                     "    date_of_issue DATE\n" +
                     ");\n";
+
             stmt.executeUpdate(createCustomerTable);
             System.out.println("Table 'customer' created successfully!");
             String createTransactionTable = "CREATE TABLE IF NOT EXISTS transaction ("
@@ -57,6 +57,7 @@ public class Database {
                     + "bill_number VARCHAR(9),"
                     + "payment_status VARCHAR(3) "
                     + ")";
+
             stmt.executeUpdate(createTransactionTable);
             System.out.println("Table 'transaction' created successfully!");
 

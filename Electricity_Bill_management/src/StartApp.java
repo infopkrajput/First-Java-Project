@@ -17,6 +17,7 @@ public class StartApp extends JFrame {
         setResizable(false);
         setLocationRelativeTo(null);
         setVisible(true);
+
         try {
             Thread.sleep(3000);
             setVisible(false);
