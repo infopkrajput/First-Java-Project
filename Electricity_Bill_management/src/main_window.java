@@ -6,10 +6,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class main_window extends JFrame {
-    JMenuItem newCustomer, generateBill, viewBill, payBill, editCustomer, payBillReport, billWiseReport,viewCustomers;
+    JMenuItem newCustomer, generateBill, viewBill, payBill, editCustomer, payBillReport, billWiseReport, viewCustomers;
 
     main_window() {
-
         ImageIcon backgroundImage = new ImageIcon(ClassLoader.getSystemResource("images/bg.jpg"));
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Image backgroundImageScale = backgroundImage.getImage().getScaledInstance(screenSize.width, screenSize.height, Image.SCALE_SMOOTH);

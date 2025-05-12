@@ -12,8 +12,8 @@ public class viewCustomer extends JFrame implements ActionListener {
     viewCustomer() {
         String title = "View Customers";
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int width = (int) (screenSize.width * 0.75);
-        int height = (int) (screenSize.height * 0.75);
+        int width = (int) (screenSize.width * 0.90);
+        int height = (int) (screenSize.height * 0.90);
 
         int marginLeft = (int) (width * 0.05);
         int marginTop = 100;
@@ -29,6 +29,7 @@ public class viewCustomer extends JFrame implements ActionListener {
         JTable table = new JTable(model);
 
         JScrollPane scrollPane = new JScrollPane(table);
+
         add(scrollPane);
         scrollPane.setBounds(marginLeft, marginTop, width - 2 * marginLeft, height - marginTop - 50);
         table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 20));

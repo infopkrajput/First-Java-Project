@@ -3,18 +3,19 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class payBill extends JFrame implements ActionListener {
 
-    JTextField name, address, city, pinCode, accountId, mobileNumber, connectionType, totalBilled, billNumbers;
+    JTextField name, address, city, pinCode, accountId, mobileNumber, totalBilled, billNumbers;
     JButton open, paid, close;
     Choice state;
 
     payBill() {
         String title = "Pay Bill";
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int width = (int) (screenSize.width * 0.75);
-        int height = (int) (screenSize.height * 0.75);
+        int width = (int) (screenSize.width * 0.90);
+        int height = (int) (screenSize.height * 0.90);
 
         int marginLeft = (int) (width * 0.05);
         int marginTop = 100;
@@ -36,35 +37,43 @@ public class payBill extends JFrame implements ActionListener {
         createLabel("Total Bill Amount :", marginLeft, marginTop + (rowHeight + spacingY), labelWidth, rowHeight);
         totalBilled = createTextField(fieldX, marginTop + (rowHeight + spacingY), fieldWidth / 4, rowHeight);
         totalBilled.setEditable(false);
+        totalBilled.setFocusable(false);
 
         createLabel("Bill No:", fieldX + fieldWidth / 4 + 20, marginTop + (rowHeight + spacingY), fieldWidth / 2, rowHeight);
         billNumbers = createTextField(fieldX + fieldWidth / 2 - 40, marginTop + (rowHeight + spacingY), fieldWidth / 2 + 40, rowHeight);
         billNumbers.setEditable(false);
+        billNumbers.setFocusable(false);
 
         createLabel("Customer name:", marginLeft, marginTop + (rowHeight + spacingY) * 2, labelWidth, rowHeight);
         name = createTextField(fieldX, marginTop + (rowHeight + spacingY) * 2, fieldWidth, rowHeight);
         name.setEditable(false);
+        name.setFocusable(false);
 
         createLabel("Address:", marginLeft, marginTop + (rowHeight + spacingY) * 3, labelWidth, rowHeight);
         address = createTextField(fieldX, marginTop + (rowHeight + spacingY) * 3, fieldWidth, rowHeight);
         address.setEditable(false);
+        address.setFocusable(false);
 
         createLabel("City:", marginLeft, marginTop + (rowHeight + spacingY) * 4, labelWidth, rowHeight);
         city = createTextField(fieldX, marginTop + (rowHeight + spacingY) * 4, fieldWidth, rowHeight);
         city.setEditable(false);
+        city.setFocusable(false);
 
         createLabel("State:", marginLeft, marginTop + (rowHeight + spacingY) * 5, labelWidth, rowHeight);
         state = createChoice(fieldX, marginTop + (rowHeight + spacingY) * 5, fieldWidth, rowHeight);
         addStates(state);
         state.setEnabled(false);
+        state.setFocusable(false);
 
         createLabel("Pin Code:", marginLeft, marginTop + (rowHeight + spacingY) * 6, labelWidth, rowHeight);
         pinCode = createTextField(fieldX, marginTop + (rowHeight + spacingY) * 6, fieldWidth, rowHeight);
         pinCode.setEditable(false);
+        pinCode.setFocusable(false);
 
         createLabel("Mobile Number:", marginLeft, marginTop + (rowHeight + spacingY) * 7, labelWidth, rowHeight);
         mobileNumber = createTextField(fieldX, marginTop + (rowHeight + spacingY) * 7, fieldWidth, rowHeight);
         mobileNumber.setEditable(false);
+        mobileNumber.setFocusable(false);
 
         paid = createButton("Pay", marginLeft, marginTop + (rowHeight + spacingY) * 8, fieldWidth / 4, rowHeight);
         paid.addActionListener(this);
@@ -144,7 +153,6 @@ public class payBill extends JFrame implements ActionListener {
 
                 String query = "SELECT * from customer where account_id = '" + accountIdString + "' ";
                 ResultSet rs0 = Database.getStatement().executeQuery(query);
-
                 if (rs0.next()) {
                     accountId.setBorder(greenBorder);
                     name.setText(rs0.getString("name"));
@@ -156,37 +164,35 @@ public class payBill extends JFrame implements ActionListener {
 
                     double amount = 0;
                     String amountInString = "";
-                    String billNumber = "";
                     String billCheck = "";
-                    String billQuery = "SELECT * from transaction where account_id = '" + accountIdString + "' ";
+                    String billQuery = "SELECT * from transaction where account_id = '" + accountIdString + "' and payment_status = 'NO' ";
                     ResultSet rs1 = Database.getStatement().executeQuery(billQuery);
                     if (rs1.next()) {
-                        while (rs1.next()) {
-                            billCheck = rs1.getString("payment_status");
-                            if (billCheck.equals("NO")) {
-                                amountInString = rs1.getString("amount");
-                                amount += Double.valueOf(amountInString);
-                                billNumber += rs1.getString("bill_number");
-                                billNumber += " ";
-                            }
-                        }
-                        totalBilled.setText(String.valueOf(amount));
-                        billNumbers.setText(billNumber + " ");
+                        billNumbers.setText(rs1.getString("bill_number"));
+                        totalBilled.setText(rs1.getString("amount"));
                     } else {
                         JOptionPane.showMessageDialog(this, "No Pending bill found for the entered Account ID.", "Not Found", JOptionPane.INFORMATION_MESSAGE);
+                        name.setText("");
+                        address.setText("");
+                        city.setText("");
+                        pinCode.setText("");
+                        mobileNumber.setText("");
+                        state.select(0);
+                        totalBilled.setText("");
+                        billNumbers.setText("");
                     }
 
                 } else {
                     addSuggestionText(accountId, "Account ID not found");
-                    connectionType.setText("");
                     name.setText("");
                     address.setText("");
                     city.setText("");
                     pinCode.setText("");
                     mobileNumber.setText("");
                     state.select(0);
-
                     accountId.setBorder(redBorder);
+                    totalBilled.setText("");
+                    billNumbers.setText("");
                     JOptionPane.showMessageDialog(this, "No data found for the entered Account ID.", "Not Found", JOptionPane.INFORMATION_MESSAGE);
                 }
 
@@ -198,7 +204,27 @@ public class payBill extends JFrame implements ActionListener {
         }
 
         if (e.getSource() == paid) {
-
+            boolean isCorrect = true;
+            if (totalBilled.getText().equals("")) {
+                isCorrect = false;
+                JOptionPane.showMessageDialog(this, "Please account id and click open.");
+                return;
+            }
+            String query = "UPDATE transaction SET payment_status = 'YES' WHERE account_id = '" + accountId.getText() + "'";
+            try {
+                Database.getStatement().executeUpdate(query);
+                JOptionPane.showMessageDialog(this, "Bill Paid Successfully.", "Not Found", JOptionPane.INFORMATION_MESSAGE);
+                name.setText("");
+                address.setText("");
+                city.setText("");
+                pinCode.setText("");
+                mobileNumber.setText("");
+                state.select(0);
+                totalBilled.setText("");
+                billNumbers.setText("");
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
 
         }
 

@@ -1,17 +1,20 @@
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class viewBill extends JFrame implements ActionListener {
 
     viewBill() {
         String title = "View Bill";
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int width = (int) (screenSize.width * 0.75);
-        int height = (int) (screenSize.height * 0.75);
+        int width = (int) (screenSize.width * 0.90);
+        int height = (int) (screenSize.height * 0.90);
 
         JLabel heading = new JLabel(title);
         heading.setFont(new Font("Arial", Font.BOLD, 30));
@@ -20,6 +23,9 @@ public class viewBill extends JFrame implements ActionListener {
         int x = (width - textWidth) / 2;
         heading.setBounds(x, 30, textWidth, 30);
         add(heading);
+
+       
+
 
 
         JRootPane rootPane = getRootPane();
