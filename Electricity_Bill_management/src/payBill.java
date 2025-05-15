@@ -210,7 +210,7 @@ public class payBill extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "Please account id and click open.");
                 return;
             }
-            String query = "UPDATE transaction SET payment_status = 'YES' WHERE account_id = '" + accountId.getText() + "'";
+            String query = "UPDATE transaction SET payment_status = 'YES', date_of_payment = NOW() WHERE account_id = '" + accountId.getText() + "' AND payment_status = 'NO'";
             try {
                 Database.getStatement().executeUpdate(query);
                 JOptionPane.showMessageDialog(this, "Bill Paid Successfully.", "Not Found", JOptionPane.INFORMATION_MESSAGE);

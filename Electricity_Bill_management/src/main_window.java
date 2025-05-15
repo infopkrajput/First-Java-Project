@@ -6,7 +6,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class main_window extends JFrame {
-    JMenuItem newCustomer, generateBill, viewBill, payBill, editCustomer, payBillReport, billWiseReport, viewCustomers;
+    JMenuItem newCustomer, generateBill, viewBill, payBill, editCustomer, payBillReport, customerWise, viewCustomers, printBill,settings;
 
     main_window() {
         ImageIcon backgroundImage = new ImageIcon(ClassLoader.getSystemResource("images/bg.jpg"));
@@ -25,6 +25,7 @@ public class main_window extends JFrame {
         generateBill = menu.add(createMenuItem("Generate Bill", "images/generateBill.png", e -> new generateBill()));
         viewBill = menu.add(createMenuItem("View Bill", "images/viewBill.png", e -> new viewBill()));
         payBill = menu.add(createMenuItem("Pay Bill", "images/payBill.png", e -> new payBill()));
+        printBill = menu.add(createMenuItem("Print Bill","images/printBill.png",e-> new printBill()));
 
         JMenu manage = new JMenu("Manage");
         manage.setFont(new Font("monospaced", Font.BOLD, 20));
@@ -39,10 +40,11 @@ public class main_window extends JFrame {
         menuBar.add(report);
 
         payBillReport = report.add(createMenuItem("Pending Bill Report", "images/editCustomer.png", e -> new payBillReport()));
-        billWiseReport = report.add(createMenuItem("Bill Wise Report ", "images/editCustomer.png", e -> new billWiseReport()));
+        customerWise = report.add(createMenuItem("Customer Record", "images/editCustomer.png", e -> new CustomerRecord()));
 
         JMenu utility = new JMenu("Utility");
         utility.setFont(new Font("monospaced", Font.BOLD, 20));
+        settings = utility.add(createMenuItem("Settings","images/editCustomer.png", e -> new Settings()));
         menuBar.add(utility);
 
         JMenu close = new JMenu("Close");

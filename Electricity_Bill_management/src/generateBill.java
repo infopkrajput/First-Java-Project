@@ -122,7 +122,7 @@ public class generateBill extends JFrame implements ActionListener {
         int imageX = fieldX + fieldWidth + ((width - (fieldX + fieldWidth)) - imageSize) / 2;
         int imageY = (height - imageSize) / 2;
 
-        ImageIcon image = new ImageIcon(ClassLoader.getSystemResource("images/generatingBill.png"));
+        ImageIcon image = new ImageIcon(ClassLoader.getSystemResource("images/generateBill.png"));
         Image imageScale = image.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
         ImageIcon imageFinal = new ImageIcon(imageScale);
         JLabel imageLabel = new JLabel(imageFinal);
@@ -197,8 +197,6 @@ public class generateBill extends JFrame implements ActionListener {
             Border redBorder = BorderFactory.createLineBorder(Color.RED, 2);
             Border greenBorder = BorderFactory.createLineBorder(Color.green, 2);
             Border normalBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
-
-            Date todayDate = new Date(System.currentTimeMillis());
 
             String accountIdString = accountId.getText();
             String totalConsumedUnitsString = totalConsumedUnits.getText();
@@ -277,7 +275,7 @@ public class generateBill extends JFrame implements ActionListener {
                 billNumberString = seriesOfBill + billNumberStringGenerated;
 
                 String query = "INSERT INTO transaction (account_id, date_of_transaction, unit, rate_per_unit, amount, bill_number, payment_status) " +
-                        "VALUES('" + accountIdString + "','" + todayDate.toString() + "','" + totalConsumedUnitsDouble + "','" + rate_per_unit + "','" + total_amount + "','" + billNumberString + "','NO')";
+                        "VALUES('" + accountIdString + "',NOW(),'" + totalConsumedUnitsDouble + "','" + rate_per_unit + "','" + total_amount + "','" + billNumberString + "','NO')";
                 Database.getStatement().executeUpdate(query);
 
                 totalConsumedUnits.setText("");

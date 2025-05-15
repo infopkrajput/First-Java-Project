@@ -5,9 +5,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class billWiseReport extends JFrame implements ActionListener {
+public class CustomerRecord extends JFrame implements ActionListener {
 
-    billWiseReport() {
+    CustomerRecord() {
         String title = "Generate Bill";
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int width = (int) (screenSize.width * 0.75);
@@ -29,14 +29,14 @@ public class billWiseReport extends JFrame implements ActionListener {
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                showExitDialog(billWiseReport.this);
+                showExitDialog(CustomerRecord.this);
             }
         });
 
         rootPane.getActionMap().put("exitApp", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showExitDialog(billWiseReport.this);
+                showExitDialog(CustomerRecord.this);
             }
         });
 
@@ -78,6 +78,6 @@ public class billWiseReport extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-        new billWiseReport();
+        new CustomerRecord();
     }
 }

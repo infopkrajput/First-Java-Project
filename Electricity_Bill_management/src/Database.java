@@ -50,7 +50,8 @@ public class Database {
             System.out.println("Table 'customer' created successfully!");
             String createTransactionTable = "CREATE TABLE IF NOT EXISTS transaction ("
                     + "account_id VARCHAR(8) , "
-                    + "date_of_transaction DATE, "
+                    + "date_of_transaction DATETIME, "
+                    + "date_of_payment DATETIME, "
                     + "unit FLOAT(6,2),"
                     + "rate_per_unit FLOAT(4,2),"
                     + "amount FLOAT(8,2),"

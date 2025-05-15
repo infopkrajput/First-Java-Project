@@ -92,7 +92,7 @@ public class newCustomer extends JFrame implements ActionListener {
         int imageX = fieldX + fieldWidth + ((width - (fieldX + fieldWidth)) - imageSize) / 2;
         int imageY = (height - imageSize) / 2;
 
-        ImageIcon image = new ImageIcon(ClassLoader.getSystemResource("images/addCustomer.png"));
+        ImageIcon image = new ImageIcon(ClassLoader.getSystemResource("images/newCustomer.png"));
         Image imageScale = image.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
         ImageIcon imageFinal = new ImageIcon(imageScale);
         JLabel imageLabel = new JLabel(imageFinal);
