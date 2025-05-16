@@ -64,7 +64,7 @@ public class editCustomer extends JFrame implements ActionListener {
 
         createLabel("Meter Number:", marginLeft, marginTop + (rowHeight + spacingY) * 9, labelWidth, rowHeight);
         meterNumberField = createTextField(fieldX, marginTop + (rowHeight + spacingY) * 9, fieldWidth / 2, rowHeight);
-        meterNumberField.setEditable(false);
+
 
         createLabel("Issue Date: ", fieldX + (fieldWidth / 2) + 5, marginTop + (rowHeight + spacingY) * 9, (fieldWidth / 2) - (fieldWidth / 4) - 5, rowHeight);
         dateToday = createTextField(fieldX + (fieldWidth / 2) + (fieldWidth / 4), marginTop + (rowHeight + spacingY) * 9, (fieldWidth / 2) - (fieldWidth / 4), rowHeight);
