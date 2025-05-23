@@ -1,5 +1,3 @@
-package Login;
-
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
@@ -18,7 +16,7 @@ public class Forget extends JFrame implements ActionListener {
 
     Forget() {
         // Set the Title of the Window
-        setTitle("Login.Forget Password");
+        setTitle("Forget Password");
 
         // Set the background image
         getContentPane().setBackground(new Color(83, 199, 224));
@@ -33,7 +31,7 @@ public class Forget extends JFrame implements ActionListener {
 
 
         // Add a Create Account label
-        JLabel forget = new JLabel("Login.Forget Password");
+        JLabel forget = new JLabel("Forget Password");
         forget.setBounds(220, 30, 400, 25);
         forget.setFont(new Font("Arial", Font.BOLD, 30));
         add(forget);

@@ -1,4 +1,5 @@
-package Login;
+import com.mysql.cj.protocol.Resultset;
+import com.sun.tools.javac.Main;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,7 +17,7 @@ public class Login extends JFrame implements ActionListener {
     Choice loginChoice;
     JButton loginButton, forget, signUpButton;
 
-    public Login() {
+    Login() {
         // Set the Title of the Window
         setTitle("Login");
 
@@ -44,7 +45,7 @@ public class Login extends JFrame implements ActionListener {
         add(passwordInput);
 
         // Add a login as choice label
-        JLabel login = new JLabel("Login.Login As:");
+        JLabel login = new JLabel("Login As:");
         login.setBounds(220, 90, 80, 25);
         add(login);
 
@@ -62,7 +63,7 @@ public class Login extends JFrame implements ActionListener {
         add(loginButton);
 
         // Add a cancel button
-        forget = new JButton("Login.Forget");
+        forget = new JButton("Forget");
         forget.setBounds(360, 170, 80, 25);
         forget.addActionListener(this);
         add(forget);

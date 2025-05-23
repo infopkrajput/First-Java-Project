@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ArtifactsWorkspaceSettings">
+    <artifacts-to-build>
+      <artifact name="Electricity_Bill_management:jar" />
+    </artifacts-to-build>
+  </component>
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="0ca31cc8-0c35-4120-8afe-8861926ca2e7" name="Changes" comment="update new pages">
+      <change afterPath="$PROJECT_DIR$/.idea/artifacts/Electricity_Bill_management_jar.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/StartApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/StartApp.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="PUSH_AUTO_UPDATE" value="true" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;infopkrajput&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/infopkrajput/Java_Projects.git&quot;,
+    &quot;accountId&quot;: &quot;00d2cf52-41d2-4e87-acac-382151a24c6b&quot;
+  }
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="2vvkaNEryk90sxc7P9JWW28ItVq" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.Forget.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Login.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MainWindow.executor&quot;: &quot;Run&quot;,
+    &quot;Application.OpenScreen.executor&quot;: &quot;Run&quot;,
+    &quot;Application.PlaceholderExample.executor&quot;: &quot;Run&quot;,
+    &quot;Application.PlaceholderTextFieldExample.executor&quot;: &quot;Run&quot;,
+    &quot;Application.SignUp.executor&quot;: &quot;Run&quot;,
+    &quot;Application.StartApp.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Usable.executor&quot;: &quot;Run&quot;,
+    &quot;Application.editCustomer.executor&quot;: &quot;Run&quot;,
+    &quot;Application.generateBill.executor&quot;: &quot;Run&quot;,
+    &quot;Application.hi.executor&quot;: &quot;Run&quot;,
+    &quot;Application.main_window.executor&quot;: &quot;Run&quot;,
+    &quot;Application.newCustomer.executor&quot;: &quot;Run&quot;,
+    &quot;Application.payBill.executor&quot;: &quot;Run&quot;,
+    &quot;Application.placeholder.executor&quot;: &quot;Run&quot;,
+    &quot;Application.viewBill.executor&quot;: &quot;Run&quot;,
+    &quot;Application.viewCustomer.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;full.screen.before.presentation.mode&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/pknatic/OneDrive/PK/Study/Java_Projects/Electricity_Bill_management/src/images&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;settings.sync&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
+    ]
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\pknatic\OneDrive\PK\Study\Java_Projects\Electricity_Bill_management\src\images" />
+      <recent name="C:\Users\pkraj\OneDrive\PK\Study\Java_Projects\Electricity_Bill_management\src\images" />
+      <recent name="C:\Users\pknatic\OneDrive\PK\Study\Java_Projects\Electricity_Bill_management\src" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\pkraj\OneDrive\PK\Study\Java_Projects\Electricity_Bill_management\src\images" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.25410.129" />
+        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-IU-251.25410.129" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0ca31cc8-0c35-4120-8afe-8861926ca2e7" name="Changes" comment="" />
+      <created>1745032999545</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1745032999545</updated>
+      <workItem from="1745033000988" duration="229000" />
+      <workItem from="1745033488243" duration="14832000" />
+      <workItem from="1745127075918" duration="1086000" />
+      <workItem from="1745146777891" duration="1392000" />
+      <workItem from="1745149350630" duration="4818000" />
+      <workItem from="1745211516722" duration="28000" />
+      <workItem from="1745211573624" duration="44000" />
+      <workItem from="1745211722790" duration="1176000" />
+      <workItem from="1745229634909" duration="19000" />
+      <workItem from="1745385233641" duration="374000" />
+      <workItem from="1745385669965" duration="7095000" />
+      <workItem from="1745474620464" duration="207000" />
+      <workItem from="1745474850953" duration="11015000" />
+      <workItem from="1745496921393" duration="71000" />
+      <workItem from="1745498009917" duration="576000" />
+      <workItem from="1745499849931" duration="964000" />
+      <workItem from="1745515877356" duration="1560000" />
+      <workItem from="1745554144360" duration="254000" />
+      <workItem from="1745554430424" duration="671000" />
+      <workItem from="1745557450089" duration="17389000" />
+      <workItem from="1745592048369" duration="7212000" />
+      <workItem from="1745599842073" duration="143000" />
+      <workItem from="1745677874575" duration="801000" />
+      <workItem from="1745698600641" duration="2691000" />
+      <workItem from="1745704314519" duration="328000" />
+      <workItem from="1745730730623" duration="1017000" />
+      <workItem from="1745733482406" duration="19170000" />
+      <workItem from="1745765261656" duration="19939000" />
+      <workItem from="1745817491014" duration="1226000" />
+      <workItem from="1745843330452" duration="312000" />
+      <workItem from="1745850978559" duration="1029000" />
+      <workItem from="1745892866980" duration="29569000" />
+      <workItem from="1745996804421" duration="665000" />
+      <workItem from="1746001008737" duration="1453000" />
+      <workItem from="1746093031535" duration="2234000" />
+      <workItem from="1746107990349" duration="8463000" />
+      <workItem from="1746194989661" duration="15330000" />
+      <workItem from="1746232187398" duration="9303000" />
+      <workItem from="1746344444243" duration="668000" />
+      <workItem from="1746372381270" duration="15385000" />
+      <workItem from="1746504810572" duration="19022000" />
+      <workItem from="1746722195164" duration="4763000" />
+      <workItem from="1746770069249" duration="102000" />
+      <workItem from="1746770282308" duration="4380000" />
+      <workItem from="1746942518157" duration="666000" />
+      <workItem from="1746943737564" duration="8304000" />
+      <workItem from="1747026542335" duration="321000" />
+      <workItem from="1747029516948" duration="52000" />
+      <workItem from="1747035078594" duration="324000" />
+      <workItem from="1747055639865" duration="162000" />
+      <workItem from="1747055982672" duration="2631000" />
+      <workItem from="1747072522482" duration="882000" />
+      <workItem from="1747106819601" duration="2858000" />
+      <workItem from="1747291686180" duration="855000" />
+      <workItem from="1747293080282" duration="8759000" />
+      <workItem from="1747314560445" duration="75000" />
+      <workItem from="1747314721111" duration="1093000" />
+      <workItem from="1747333740329" duration="2009000" />
+      <workItem from="1747391572016" duration="324000" />
+      <workItem from="1747392315560" duration="2427000" />
+      <workItem from="1747458492308" duration="58000" />
+    </task>
+    <task id="LOCAL-00001" summary="update new pages">
+      <option name="closed" value="true" />
+      <created>1745702935391</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1745702935391</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="update new pages" />
+    <option name="LAST_COMMIT_MESSAGE" value="update new pages" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>

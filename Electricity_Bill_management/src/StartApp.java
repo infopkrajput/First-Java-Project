@@ -4,7 +4,6 @@ import java.awt.*;
 public class StartApp extends JFrame {
 
     StartApp() {
-        // Set the background image
         ImageIcon image = new ImageIcon(ClassLoader.getSystemResource("images/pkcomputer.jpg"));
         Image img = image.getImage().getScaledInstance(600, 600, Image.SCALE_DEFAULT);
         ImageIcon imgIcon = new ImageIcon(img);
