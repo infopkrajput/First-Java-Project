@@ -70,8 +70,8 @@ public class main_window extends JFrame {
             report.setFont(new Font("monospaced", Font.BOLD, 20));
             menuBar.add(report);
 
-            payBillReport = report.add(createMenuItem("Pending Bill Report", "images/editCustomer.png", e -> new payBillReport()));
-            customerWise = report.add(createMenuItem("Customer Record", "images/editCustomer.png", e -> new CustomerRecord()));
+            payBillReport = report.add(createMenuItem("Bill wise Report", "images/editCustomer.png", e -> new billWiseReport()));
+            customerWise = report.add(createMenuItem("Customer wise Record", "images/editCustomer.png", e -> new customerWiseReport()));
 
         } else if (Session.userTypeLoggedInAS.equals("root")) {
             JMenu menu = new JMenu("Main Menu");
@@ -95,8 +95,8 @@ public class main_window extends JFrame {
             report.setFont(new Font("monospaced", Font.BOLD, 20));
             menuBar.add(report);
 
-            payBillReport = report.add(createMenuItem("Pending Bill Report", "images/editCustomer.png", e -> new payBillReport()));
-            customerWise = report.add(createMenuItem("Customer Record", "images/editCustomer.png", e -> new CustomerRecord()));
+            payBillReport = report.add(createMenuItem("Pending Bill Report", "images/editCustomer.png", e -> new billWiseReport()));
+            customerWise = report.add(createMenuItem("Customer Record", "images/editCustomer.png", e -> new customerWiseReport()));
 
             JMenu utility = new JMenu("Utility");
             utility.setFont(new Font("monospaced", Font.BOLD, 20));

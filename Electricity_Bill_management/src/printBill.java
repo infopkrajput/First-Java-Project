@@ -2,6 +2,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.print.Printable;
 import java.awt.print.PrinterJob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,9 +30,9 @@ public class printBill extends JFrame implements ActionListener {
 
         invoicePanel = new JPanel();
         invoicePanel.setLayout(new BoxLayout(invoicePanel, BoxLayout.Y_AXIS));
-        invoicePanel.setBorder(BorderFactory.createTitledBorder("Invoice Preview"));
+//        invoicePanel.setBorder(BorderFactory.createTitledBorder("Invoice Preview"));
         invoicePanel.setBounds((int) (width * 0.5), marginTop, (int) (width * 0.4), (int) (height * 0.75));
-        invoicePanel.setBackground(Color.LIGHT_GRAY);
+        invoicePanel.setBackground(new Color(255, 255, 255));
         add(invoicePanel);
 
 
@@ -39,7 +40,7 @@ public class printBill extends JFrame implements ActionListener {
         billNumber = createTextField(fieldX, marginTop, fieldWidth / 2, rowHeight);
         addSuggestionText(billNumber, "Enter Bill Number");
 
-        createButton("Print", marginLeft, marginTop + rowHeight + spacingY, fieldX, rowHeight);
+        createButton("Find Bill", marginLeft, marginTop + rowHeight + spacingY, fieldX, rowHeight);
 
         JLabel heading = new JLabel(title);
         heading.setFont(new Font("Arial", Font.BOLD, 30));
@@ -48,6 +49,13 @@ public class printBill extends JFrame implements ActionListener {
         int x = (width - textWidth) / 2;
         heading.setBounds(x, 30, textWidth, 30);
         add(heading);
+
+        JButton printInvoiceBtn = new JButton("Print Invoice");
+        printInvoiceBtn.setBounds(marginLeft, marginTop + rowHeight + spacingY * 2 + 10 +20 , fieldX, rowHeight);
+        printInvoiceBtn.setFont(new Font("Arial", Font.BOLD, 20));
+        printInvoiceBtn.addActionListener(e -> printInvoicePanel());
+        add(printInvoiceBtn);
+
 
         JRootPane rootPane = getRootPane();
         KeyStroke escKey = KeyStroke.getKeyStroke("ESCAPE");
@@ -88,31 +96,101 @@ public class printBill extends JFrame implements ActionListener {
         }
     }
 
-    public void displayInvoice(String billNo) {
+//    public void displayInvoice(String billNo) {
+//
+//        invoicePanel.removeAll();
+//        invoicePanel.revalidate();
+//        invoicePanel.repaint();
+//
+//        try {
+//            // Replace with your DB connection code
+//            String query = "SELECT * FROM transaction WHERE bill_number = '" + billNo + "'";
+//
+//            ResultSet rs = Database.getStatement().executeQuery(query);
+//            if (rs.next()) {
+//                JLabel billLabel = new JLabel("Bill Number: " + rs.getString("bill_number"));
+//                JLabel nameLabel = new JLabel("Account Id: " + rs.getString("account_id"));
+//                JLabel dateLabel = new JLabel("Date: " + rs.getString("date_of_payment"));
+//                JLabel amountLabel = new JLabel("Total Amount: ₹" + rs.getString("amount"));
+//
+//                Font font = new Font("Arial", Font.PLAIN, 18);
+//                for (JLabel label : new JLabel[]{billLabel, nameLabel, dateLabel, amountLabel}) {
+//                    label.setFont(font);
+//                    label.setAlignmentX(Component.LEFT_ALIGNMENT);
+//                    invoicePanel.add(Box.createVerticalStrut(10)); // Space between labels
+//                    invoicePanel.add(label);
+//                }
 
+    /// /                exportPanelToPDF(invoicePanel, "Invoice_" + billNo + ".pdf");
+//            } else {
+//                JLabel notFound = new JLabel("Bill not found.");
+//                notFound.setFont(new Font("Arial", Font.BOLD, 18));
+//                notFound.setForeground(Color.RED);
+//                invoicePanel.add(notFound);
+//            }
+//
+//        } catch (SQLException ex) {
+//            ex.printStackTrace();
+//            JOptionPane.showMessageDialog(this, "Error fetching bill data.");
+//        }
+//    }
+    public void displayInvoice(String billNo) {
         invoicePanel.removeAll();
         invoicePanel.revalidate();
         invoicePanel.repaint();
 
         try {
-            // Replace with your DB connection code
-            String query = "SELECT * FROM transaction WHERE bill_number = '" + billNo + "'";
-
+            String query = "SELECT * FROM transactions t JOIN customer c ON t.account_id = c.account_id WHERE bill_number = '" + billNo + "'";
             ResultSet rs = Database.getStatement().executeQuery(query);
-            if (rs.next()) {
-                JLabel billLabel = new JLabel("Bill Number: " + rs.getString("bill_number"));
-                JLabel nameLabel = new JLabel("Account Id: " + rs.getString("account_id"));
-                JLabel dateLabel = new JLabel("Date: " + rs.getString("date_of_payment"));
-                JLabel amountLabel = new JLabel("Total Amount: ₹" + rs.getString("amount"));
 
-                Font font = new Font("Arial", Font.PLAIN, 18);
-                for (JLabel label : new JLabel[]{billLabel, nameLabel, dateLabel, amountLabel}) {
-                    label.setFont(font);
-                    label.setAlignmentX(Component.LEFT_ALIGNMENT);
-                    invoicePanel.add(Box.createVerticalStrut(10)); // Space between labels
-                    invoicePanel.add(label);
-                }
-//                exportPanelToPDF(invoicePanel, "Invoice_" + billNo + ".pdf");
+            if (rs.next()) {
+                JTextArea billArea = new JTextArea();
+                billArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
+                billArea.setEditable(false);
+
+                String formattedBill = String.format(
+                                "------------------------------------------------------------\n" +
+                                "|                      ELECTRICITY BILL                    |\n" +
+                                "------------------------------------------------------------\n" +
+                                "| Bill No: %-18s   Date: %-20s |\n" +
+                                "------------------------------------------------------------\n" +
+                                "| Account ID       : %-37s |\n" +
+                                "| Name             : %-37s |\n" +
+                                "| Address          : %-37s |\n" +
+                                "| State            : %-37s |\n" +
+                                "| Mobile           : %-37s |\n" +
+                                "| Connection Type  : %-37s |\n" +
+                                "| Meter Number     : %-37s |\n" +
+                                "| ID Proof         : %-37s |\n" +
+                                "| Issue Date       : %-37s |\n" +
+                                "------------------------------------------------------------\n" +
+                                "| Units Consumed   : %-37s |\n" +
+                                "| Rate/Unit        : ₹%-36s |\n" +
+                                "| Total Amount     : ₹%-36s |\n" +
+                                "| Status           : %-37s |\n" +
+                                "------------------------------------------------------------\n" +
+                                "| Thank you for using our services. Pay before due date.   |\n" +
+                                "------------------------------------------------------------",
+                        rs.getString("bill_number"),
+                        rs.getString("date_of_payment"),
+                        rs.getString("account_id"),
+                        rs.getString("name"),
+                        rs.getString("address") + ", " + rs.getString("city") + " - " + rs.getString("pin_code"),
+                        rs.getString("state"),
+                        rs.getString("mobile_number"),
+                        rs.getString("connection_type"),
+                        rs.getString("meter_number"),
+                        rs.getString("id_proof_type") + " - " + rs.getString("id_proof_number"),
+                        rs.getString("date_of_issue"),
+                        rs.getString("unit"),
+                        rs.getString("rate_per_unit"),
+                        rs.getString("amount"),
+                        rs.getString("payment_status")
+                );
+
+                billArea.setText(formattedBill);
+                invoicePanel.add(new JScrollPane(billArea));
+
             } else {
                 JLabel notFound = new JLabel("Bill not found.");
                 notFound.setFont(new Font("Arial", Font.BOLD, 18));
@@ -123,6 +201,30 @@ public class printBill extends JFrame implements ActionListener {
         } catch (SQLException ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error fetching bill data.");
+        }
+    }
+
+    private void printInvoicePanel() {
+        PrinterJob job = PrinterJob.getPrinterJob();
+        job.setJobName("Print Bill");
+
+        job.setPrintable((graphics, pageFormat, pageIndex) -> {
+            if (pageIndex > 0) return Printable.NO_SUCH_PAGE;
+
+            Graphics2D g2 = (Graphics2D) graphics;
+            g2.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
+            invoicePanel.printAll(g2);
+
+            return Printable.PAGE_EXISTS;
+        });
+
+        boolean doPrint = job.printDialog();
+        if (doPrint) {
+            try {
+                job.print();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Print failed: " + e.getMessage());
+            }
         }
     }
 
