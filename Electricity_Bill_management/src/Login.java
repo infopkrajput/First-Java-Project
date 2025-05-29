@@ -116,18 +116,23 @@ public class Login extends JFrame implements ActionListener {
             String username = usernameInput.getText();
             String password = passwordInput.getText();
             String loginAs = loginChoice.getSelectedItem();
-            try{
-                String query = "select * from users where username = '"+username+"' and password = '"+password+"' and usertype = '"+loginAs +"'" ;
+            Session.userTypeLoggedInAS = loginAs;
+            if(username.equals("root")){
+                loginAs = "Root";
+                Session.userTypeLoggedInAS = "root";
+            }
+            try {
+                String query = "select * from users where username = '" + username + "' and password = '" + password + "' and usertype = '" + loginAs + "'";
                 ResultSet resultSet = Database.getStatement().executeQuery(query);
-
-                if(resultSet.next()){
+                Session.userNameLoggedIn = username;
+                if (resultSet.next()) {
                     setVisible(false);
                     new main_window();
-                }else {
+                } else {
                     JOptionPane.showMessageDialog(null, "Invalid Username or Password");
                 }
 
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         } else if (e.getSource() == forget) {

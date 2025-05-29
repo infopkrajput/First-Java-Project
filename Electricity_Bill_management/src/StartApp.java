@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class StartApp extends JFrame {
+    String loggedInAs;
 
     StartApp() {
         ImageIcon image = new ImageIcon(ClassLoader.getSystemResource("images/pkcomputer.jpg"));

@@ -4,10 +4,11 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class SignUp extends JFrame implements ActionListener {
-    JTextField usernameInput, passwordInput, employeeIdInput, nameInput, accountIdInput;
+    JTextField usernameInput, passwordInput, nameInput, idInput;
     Choice createAccountAs;
     JButton create, back;
     JLabel usernameError, passwordError, employeeIdError, nameError, accountIdError;
+    String idText = "Employee ID";
 
     SignUp() {
         // Set the Title of the Window
@@ -45,18 +46,18 @@ public class SignUp extends JFrame implements ActionListener {
         add(createAccountAs);
 
         // Add a Employee ID label
-        JLabel employeeID = new JLabel("Employee ID: ");
+        JLabel employeeID = new JLabel(idText);
         employeeID.setBounds(20, 130, 150, 25);
         employeeID.setFont(new Font("Arial", Font.BOLD, 15));
         employeeID.setVisible(true);
         add(employeeID);
 
         // Add employeeIDInput text Field
-        employeeIdInput = new JTextField();
-        employeeIdInput.setBounds(170, 130, 150, 25);
-        employeeIdInput.setFont(new Font("Arial", Font.PLAIN, 15));
-        employeeIdInput.setVisible(true);
-        add(employeeIdInput);
+        idInput = new JTextField();
+        idInput.setBounds(170, 130, 150, 25);
+        idInput.setFont(new Font("Arial", Font.PLAIN, 15));
+        idInput.setVisible(true);
+        add(idInput);
 
         employeeIdError = new JLabel("Required");
         employeeIdError.setForeground(Color.RED);
@@ -66,18 +67,18 @@ public class SignUp extends JFrame implements ActionListener {
         add(employeeIdError);
 
         // Add a AccountID label
-        JLabel accountID = new JLabel("Account ID: ");
-        accountID.setBounds(20, 130, 150, 25);
-        accountID.setFont(new Font("Arial", Font.BOLD, 15));
-        accountID.setVisible(false);
-        add(accountID);
+//        JLabel accountID = new JLabel("Account ID: ");
+//        accountID.setBounds(20, 130, 150, 25);
+//        accountID.setFont(new Font("Arial", Font.BOLD, 15));
+//        accountID.setVisible(false);
+//        add(accountID);
 
-        // Add accountIdInput text Field
-        accountIdInput = new JTextField();
-        accountIdInput.setBounds(170, 130, 150, 25);
-        accountIdInput.setFont(new Font("Arial", Font.PLAIN, 15));
-        accountIdInput.setVisible(true);
-        add(accountIdInput);
+        // Add idInput text Field
+//        idInput = new JTextField();
+//        idInput.setBounds(170, 130, 150, 25);
+//        idInput.setFont(new Font("Arial", Font.PLAIN, 15));
+//        idInput.setVisible(true);
+//        add(idInput);
 
         accountIdError = new JLabel("Required");
         accountIdError.setForeground(Color.RED);
@@ -92,15 +93,9 @@ public class SignUp extends JFrame implements ActionListener {
             public void itemStateChanged(ItemEvent e) {
                 String user = createAccountAs.getSelectedItem();
                 if (user.equals("Admin")) {
-                    accountID.setVisible(false);
-                    accountIdInput.setVisible(false);
-                    employeeID.setVisible(true);
-                    employeeIdInput.setVisible(true);
+                    employeeID.setText("Employee ID");
                 } else {
-                    accountID.setVisible(true);
-                    accountIdInput.setVisible(true);
-                    employeeID.setVisible(false);
-                    employeeIdInput.setVisible(false);
+                    employeeID.setText("Account ID");
                 }
             }
         });
@@ -205,9 +200,9 @@ public class SignUp extends JFrame implements ActionListener {
         if (e.getSource() == create) {
             String id = null;
             if (createAccountAs.getSelectedItem().equals("Admin")) {
-                id = employeeIdInput.getText();
+                id = idInput.getText();
             } else if (createAccountAs.getSelectedItem().equals("Customer")) {
-                id = accountIdInput.getText();
+                id = idInput.getText();
             }
             String createAsString = createAccountAs.getSelectedItem();
             String userNameString = usernameInput.getText();
@@ -248,39 +243,39 @@ public class SignUp extends JFrame implements ActionListener {
             }
 
             if (createAsString.equals("Admin")) {
-                String empId = employeeIdInput.getText();
+                String empId = idInput.getText();
                 if (empId.isEmpty()) {
-                    employeeIdInput.setBorder(redBorder);
+                    idInput.setBorder(redBorder);
                     employeeIdError.setText("Required");
                     employeeIdError.setFont(new Font("Arial", Font.BOLD, 12));
                     employeeIdError.setVisible(true);
                     isValid = false;
                 } else if (!empId.matches("\\d{8}")) {
-                    employeeIdInput.setBorder(redBorder);
+                    idInput.setBorder(redBorder);
                     employeeIdError.setText("Must be 8 digits");
                     employeeIdError.setFont(new Font("Arial", Font.BOLD, 12));
                     employeeIdError.setVisible(true);
                     isValid = false;
                 } else {
-                    employeeIdInput.setBorder(normalBorder);
+                    idInput.setBorder(normalBorder);
                     employeeIdError.setVisible(false);
                 }
             } else {
-                String accId = accountIdInput.getText();
+                String accId = idInput.getText();
                 if (accId.isEmpty()) {
-                    accountIdInput.setBorder(redBorder);
+                    idInput.setBorder(redBorder);
                     accountIdError.setText("Required");
                     accountIdError.setFont(new Font("Arial", Font.BOLD, 12));
                     accountIdError.setVisible(true);
                     isValid = false;
                 } else if (!accId.matches("\\d{8}")) {
-                    accountIdInput.setBorder(redBorder);
+                    idInput.setBorder(redBorder);
                     accountIdError.setText("Must be 8 digits");
                     accountIdError.setFont(new Font("Arial", Font.BOLD, 12));
                     accountIdError.setVisible(true);
                     isValid = false;
                 } else {
-                    accountIdInput.setBorder(normalBorder);
+                    idInput.setBorder(normalBorder);
                     accountIdError.setVisible(false);
                 }
             }
@@ -292,7 +287,14 @@ public class SignUp extends JFrame implements ActionListener {
 
             try {
                 Database c = new Database();
-                String query = "insert into users value('" + id + "','" + userNameString + "','" + nameString + "','" + passwordString + "','" + createAsString + "')";
+//                String query = "insert into users value('" + id + "','" + userNameString + "','" + nameString + "','" + passwordString + "','" + createAsString + "')";
+                String query = "INSERT INTO users (id, username, name, password, usertype) VALUES ('"
+                        + id + "', '"
+                        + userNameString + "', '"
+                        + nameString + "', '"
+                        + passwordString + "', '"
+                        + createAsString + "');";
+
                 c.getStatement().executeUpdate(query);
                 JOptionPane.showMessageDialog(null, "Account Created Successful");
                 setVisible(false);

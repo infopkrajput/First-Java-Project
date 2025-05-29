@@ -2,6 +2,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Date;
 
@@ -52,7 +53,7 @@ public class newCustomer extends JFrame implements ActionListener {
         mobileNumber = createTextField(fieldX, marginTop + (rowHeight + spacingY) * 5, fieldWidth / 2, rowHeight);
         addSuggestionText(mobileNumber, "Enter Mobile Number here");
 
-        createLabel("Type:", fieldX + (fieldWidth / 2) + 5, marginTop + (rowHeight + spacingY) * 5, (fieldWidth / 2) - (fieldWidth / 3) , rowHeight);
+        createLabel("Type:", fieldX + (fieldWidth / 2) + 5, marginTop + (rowHeight + spacingY) * 5, (fieldWidth / 2) - (fieldWidth / 3), rowHeight);
         connectionType = createChoice(fieldX + (fieldWidth / 2) + (fieldWidth / 4), marginTop + (rowHeight + spacingY) * 5, (fieldWidth / 2) - (fieldWidth / 4), rowHeight);
         addConnectionType(connectionType);
 
@@ -220,7 +221,9 @@ public class newCustomer extends JFrame implements ActionListener {
             }
 
             try {
-                String previousMeterNumberVerify = "SELECT COALESCE(MAX(RIGHT(meter_number, 6)),'000000') AS max_last_six_digits FROM customer";
+//                String previousMeterNumberVerify = "SELECT COALESCE(MAX(RIGHT(meter_number, 6)),'000000') AS max_last_six_digits FROM customer";
+                String previousMeterNumberVerify = "SELECT COALESCE(MAX(CAST(SUBSTR(meter_number, -6) AS INTEGER)), 0) AS max_last_six_digits FROM customer";
+
                 ResultSet rs0 = Database.getStatement().executeQuery(previousMeterNumberVerify);
                 int newMeterNumber = 1;
                 if (rs0.next()) {
@@ -234,7 +237,9 @@ public class newCustomer extends JFrame implements ActionListener {
                 String yearMonth = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMM"));
                 String meterNumberIncludingYearAndMonth = yearMonth + meterNumberString;
 
-                String accountIdVerify = "SELECT COALESCE(MAX(account_id), '00000000') AS max_account_id FROM customer";
+//                String accountIdVerify = "SELECT COALESCE(MAX(account_id), '00000000') AS max_account_id FROM customer";
+                String accountIdVerify = "SELECT COALESCE(MAX(CAST(account_id AS INTEGER)), 0) AS max_account_id FROM customer";
+
                 ResultSet rs = Database.getStatement().executeQuery(accountIdVerify);
                 int newAccountId = 1; // default first account id
 
@@ -248,8 +253,24 @@ public class newCustomer extends JFrame implements ActionListener {
                 // Format newAccountId to 8 digits with leading zeros
                 String accountIdString = String.format("%08d", newAccountId);
 
-                String insertCustomerQuery = "INSERT INTO customer (account_id, name, address, city, pin_code, mobile_number,connection_type, state, id_proof_type, id_proof_number, meter_number,date_of_issue)\n" + "VALUES ('" + accountIdString + "', '" + nameString + "', '" + addressString + "', '" + cityString + "', '" + pinCodeString + "', '" + mobileNumberString + "','" + connectionTypeString + "', '" + stateString + "', '" + idProofTypeString + "', '" + idProofNumberString + "', '" + meterNumberIncludingYearAndMonth + "','" + tdate.toString() + "')";
-                Database.getStatement().executeUpdate(insertCustomerQuery);
+//                String insertCustomerQuery = "INSERT INTO customer (account_id, name, address, city, pin_code, mobile_number,connection_type, state, id_proof_type, id_proof_number, meter_number,date_of_issue)\n" + "VALUES ('" + accountIdString + "', '" + nameString + "', '" + addressString + "', '" + cityString + "', '" + pinCodeString + "', '" + mobileNumberString + "','" + connectionTypeString + "', '" + stateString + "', '" + idProofTypeString + "', '" + idProofNumberString + "', '" + meterNumberIncludingYearAndMonth + "','" + tdate.toString() + "')";
+//                Database.getStatement().executeUpdate(insertCustomerQuery);
+                String insertCustomerQuery = "INSERT INTO customer (account_id, name, address, city, pin_code, mobile_number, connection_type, state, id_proof_type, id_proof_number, meter_number, date_of_issue) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                PreparedStatement pstmt = Database.getConnection().prepareStatement(insertCustomerQuery);
+                pstmt.setString(1, accountIdString);
+                pstmt.setString(2, nameString);
+                pstmt.setString(3, addressString);
+                pstmt.setString(4, cityString);
+                pstmt.setString(5, pinCodeString);
+                pstmt.setString(6, mobileNumberString);
+                pstmt.setString(7, connectionTypeString);
+                pstmt.setString(8, stateString);
+                pstmt.setString(9, idProofTypeString);
+                pstmt.setString(10, idProofNumberString);
+                pstmt.setString(11, meterNumberIncludingYearAndMonth);
+                pstmt.setString(12, tdate.toString());
+                pstmt.executeUpdate();
+
                 JOptionPane.showMessageDialog(null, "Account Created Successfully ");
 
                 meterNumberField.setText(meterNumberIncludingYearAndMonth);

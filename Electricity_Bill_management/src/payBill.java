@@ -2,6 +2,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -149,10 +150,14 @@ public class payBill extends JFrame implements ActionListener {
                 return;
             }
 
-            try {
 
-                String query = "SELECT * from customer where account_id = '" + accountIdString + "' ";
-                ResultSet rs0 = Database.getStatement().executeQuery(query);
+            try {
+                // 1. Check if Customer Exists
+                String query = "SELECT * FROM customer WHERE account_id = ?";
+                PreparedStatement customerStmt = Database.getConnection().prepareStatement(query);
+                customerStmt.setString(1, accountIdString);
+                ResultSet rs0 = customerStmt.executeQuery();
+
                 if (rs0.next()) {
                     accountId.setBorder(greenBorder);
                     name.setText(rs0.getString("name"));
@@ -162,15 +167,17 @@ public class payBill extends JFrame implements ActionListener {
                     mobileNumber.setText(rs0.getString("mobile_number"));
                     state.select(rs0.getString("state"));
 
-                    double amount = 0;
-                    String amountInString = "";
-                    String billCheck = "";
-                    String billQuery = "SELECT * from transaction where account_id = '" + accountIdString + "' and payment_status = 'NO' ";
-                    ResultSet rs1 = Database.getStatement().executeQuery(billQuery);
+                    // 2. Check Pending Bill
+                    String billQuery = "SELECT * FROM transactions WHERE account_id = ? AND payment_status = 'NO'";
+                    PreparedStatement billStmt = Database.getConnection().prepareStatement(billQuery);
+                    billStmt.setString(1, accountIdString);
+                    ResultSet rs1 = billStmt.executeQuery();
+
                     if (rs1.next()) {
                         billNumbers.setText(rs1.getString("bill_number"));
                         totalBilled.setText(rs1.getString("amount"));
                     } else {
+                        // No Pending Bill
                         JOptionPane.showMessageDialog(this, "No Pending bill found for the entered Account ID.", "Not Found", JOptionPane.INFORMATION_MESSAGE);
                         name.setText("");
                         address.setText("");
@@ -183,6 +190,7 @@ public class payBill extends JFrame implements ActionListener {
                     }
 
                 } else {
+                    // Account Not Found
                     addSuggestionText(accountId, "Account ID not found");
                     name.setText("");
                     address.setText("");
@@ -200,7 +208,6 @@ public class payBill extends JFrame implements ActionListener {
                 ECheck.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Error fetching data! Database connection.", "Error", JOptionPane.ERROR_MESSAGE);
             }
-
         }
 
         if (e.getSource() == paid) {
@@ -210,10 +217,19 @@ public class payBill extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "Please account id and click open.");
                 return;
             }
-            String query = "UPDATE transaction SET payment_status = 'YES', date_of_payment = NOW() WHERE account_id = '" + accountId.getText() + "' AND payment_status = 'NO'";
             try {
-                Database.getStatement().executeUpdate(query);
-                JOptionPane.showMessageDialog(this, "Bill Paid Successfully.", "Not Found", JOptionPane.INFORMATION_MESSAGE);
+                String query = "UPDATE transactions SET payment_status = 'YES', date_of_payment = datetime('now') WHERE account_id = ? AND payment_status = 'NO'";
+                PreparedStatement stmt = Database.getConnection().prepareStatement(query);
+                stmt.setString(1, accountId.getText());
+                int rowsAffected = stmt.executeUpdate();
+
+                if (rowsAffected > 0) {
+                    JOptionPane.showMessageDialog(this, "Bill Paid Successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "No unpaid bill found for this Account ID.", "Not Found", JOptionPane.INFORMATION_MESSAGE);
+                }
+
+                // Clear fields after payment
                 name.setText("");
                 address.setText("");
                 city.setText("");
@@ -222,9 +238,12 @@ public class payBill extends JFrame implements ActionListener {
                 state.select(0);
                 totalBilled.setText("");
                 billNumbers.setText("");
+
             } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error updating bill payment!", "Database Error", JOptionPane.ERROR_MESSAGE);
             }
+
 
         }
 

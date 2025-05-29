@@ -3,6 +3,7 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -249,35 +250,51 @@ public class generateBill extends JFrame implements ActionListener {
 
             try {
                 double carryForwardAmount = 0;
-                String checkBill = "SELECT amount FROM transaction WHERE account_id = '" + accountIdString + "' AND payment_status = 'NO'";
-                ResultSet rs = Database.getStatement().executeQuery(checkBill);
-                if (rs != null && rs.next()) {
-                    carryForwardAmount = Double.parseDouble(rs.getString("amount"));
+
+                // 1. Carry Forward Previous Unpaid Amount
+                String checkBill = "SELECT amount FROM transactions WHERE account_id = ? AND payment_status = 'NO'";
+                PreparedStatement checkStmt = Database.getConnection().prepareStatement(checkBill);
+                checkStmt.setString(1, accountIdString);
+                ResultSet rs = checkStmt.executeQuery();
+
+                if (rs.next()) {
+                    carryForwardAmount = rs.getDouble("amount");
                 }
 
-                String updatePreviousBillQuery = "UPDATE transaction SET payment_status = 'CF' WHERE account_id = '" + accountIdString + "' AND payment_status = 'NO'";
-                Database.getStatement().executeUpdate(updatePreviousBillQuery);
+                // 2. Update Old Bill as 'CF' (Carried Forward)
+                String updatePreviousBillQuery = "UPDATE transactions SET payment_status = 'CF' WHERE account_id = ? AND payment_status = 'NO'";
+                PreparedStatement updateStmt = Database.getConnection().prepareStatement(updatePreviousBillQuery);
+                updateStmt.setString(1, accountIdString);
+                updateStmt.executeUpdate();
 
+                // 3. Add Carry Forward to Current Amount
                 total_amount += carryForwardAmount;
 
-                String billQuery = "SELECT COALESCE(MAX(RIGHT(bill_number, 8)),'00000000') AS bill_number_max FROM transaction";
+                // 4. Generate Bill Number (8 digit + 'T' prefix)
+                String billQuery = "SELECT COALESCE(MAX(CAST(SUBSTR(bill_number, -8) AS INTEGER)), 0) AS bill_number_max FROM transactions";
                 ResultSet rs0 = Database.getStatement().executeQuery(billQuery);
+
                 int newBillNumber = 1;
                 if (rs0.next()) {
-                    String maxBillNumber = rs0.getString("bill_number_max");
-                    if (maxBillNumber != null) {
-                        newBillNumber = Integer.parseInt(maxBillNumber) + 1;
-                    }
+                    newBillNumber = rs0.getInt("bill_number_max") + 1;
                 }
 
                 String billNumberStringGenerated = String.format("%08d", newBillNumber);
                 String seriesOfBill = "T";
                 billNumberString = seriesOfBill + billNumberStringGenerated;
 
-                String query = "INSERT INTO transaction (account_id, date_of_transaction, unit, rate_per_unit, amount, bill_number, payment_status) " +
-                        "VALUES('" + accountIdString + "',NOW(),'" + totalConsumedUnitsDouble + "','" + rate_per_unit + "','" + total_amount + "','" + billNumberString + "','NO')";
-                Database.getStatement().executeUpdate(query);
+                // 5. Insert New Bill Record
+                String query = "INSERT INTO transactions (account_id, date_of_transaction, unit, rate_per_unit, amount, bill_number, payment_status) " +
+                        "VALUES (?, DATE('now'), ?, ?, ?, ?, 'NO')";
+                PreparedStatement insertStmt = Database.getConnection().prepareStatement(query);
+                insertStmt.setString(1, accountIdString);
+                insertStmt.setDouble(2, totalConsumedUnitsDouble);
+                insertStmt.setDouble(3, rate_per_unit);
+                insertStmt.setDouble(4, total_amount);
+                insertStmt.setString(5, billNumberString);
+                insertStmt.executeUpdate();
 
+                // 6. Reset Fields in UI
                 totalConsumedUnits.setText("");
                 accountId.setText("");
                 connectionType.setText("");
@@ -291,11 +308,12 @@ public class generateBill extends JFrame implements ActionListener {
                 totalBilled.setText(String.valueOf(total_amount));
                 billNumber.setText(billNumberString);
 
-                JOptionPane.showMessageDialog(null, "Bill Generated Successfully! of " + total_amount);
+                JOptionPane.showMessageDialog(null, "Bill Generated Successfully! of ₹" + total_amount);
 
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
+
 
         }
         if (e.getSource() == close) {

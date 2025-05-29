@@ -92,24 +92,24 @@ public class viewBill extends JFrame implements ActionListener {
             model.setRowCount(0);
             model.setColumnCount(0);
 
-            String query = "SELECT \n" +
-                    "    t.account_id,\n" +
-                    "    t.bill_number AS Bill_no,\n" +
-                    "    c.name,\n" +
-                    "    c.city,\n" +
-                    "    c.mobile_number,\n" +
-                    "    t.date_of_transaction AS DateOfTransaction,\n" +
-                    "    t.unit AS Units,\n" +
-                    "    t.amount AS Amount,\n" +
-                    "    t.payment_status AS Paid\n" +
-                    "FROM \n" +
-                    "    transaction t\n" +
-                    "JOIN \n" +
-                    "    customer c ON t.account_id = c.account_id\n" +
-                    "WHERE \n" +
-                    "    t.payment_status = '" + paymentStatus + "';";
+            String query = "SELECT " +
+                    "t.account_id, " +
+                    "t.bill_number AS Bill_no, " +
+                    "c.name, " +
+                    "c.city, " +
+                    "c.mobile_number, " +
+                    "t.date_of_transaction AS DateOfTransaction, " +
+                    "t.unit AS Units, " +
+                    "t.amount AS Amount, " +
+                    "t.payment_status AS Paid " +
+                    "FROM transactions t " +
+                    "JOIN customer c ON t.account_id = c.account_id " +
+                    "WHERE t.payment_status = ?";
 
-            ResultSet rs = Database.getStatement().executeQuery(query);
+            PreparedStatement pstmt = Database.getConnection().prepareStatement(query);
+            pstmt.setString(1, paymentStatus); // Use parameter instead of direct string
+
+            ResultSet rs = pstmt.executeQuery();
             ResultSetMetaData rsmd = rs.getMetaData();
             int columnCount = rsmd.getColumnCount();
 
@@ -132,7 +132,9 @@ public class viewBill extends JFrame implements ActionListener {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error loading bill records!", "Database Error", JOptionPane.ERROR_MESSAGE);
         }
+
     }
 
     @Override
