@@ -10,8 +10,17 @@ public class customerWiseReport extends JFrame implements ActionListener {
     customerWiseReport() {
         String title = "Generate Bill";
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int width = (int) (screenSize.width * 0.75);
-        int height = (int) (screenSize.height * 0.75);
+        int width = (int) (screenSize.width * 0.90);
+        int height = (int) (screenSize.height * 0.90);
+
+        int marginLeft = (int) (width * 0.05);
+        int marginTop = 100;
+        int rowHeight = 30;
+
+        int labelWidth = (int) (width * 0.1);
+        int fieldWidth = (int) (width * 0.35);
+
+        int fieldX = marginLeft + labelWidth + 20;
 
         JLabel heading = new JLabel(title);
         heading.setFont(new Font("Arial", Font.BOLD, 30));
@@ -20,7 +29,6 @@ public class customerWiseReport extends JFrame implements ActionListener {
         int x = (width - textWidth) / 2;
         heading.setBounds(x, 30, textWidth, 30);
         add(heading);
-
 
         JRootPane rootPane = getRootPane();
         KeyStroke escKey = KeyStroke.getKeyStroke("ESCAPE");
