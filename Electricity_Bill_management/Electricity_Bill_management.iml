@@ -19,5 +19,6 @@
     </orderEntry>
     <orderEntry type="library" exported="" name="mysql-connector-j-9.3.0" level="project" />
     <orderEntry type="library" name="itextpdf-5.5.13.3" level="project" />
+    <orderEntry type="library" name="jcalendar-1.4" level="project" />
   </component>
 </module>
