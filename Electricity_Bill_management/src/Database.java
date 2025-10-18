@@ -1,3 +1,4 @@
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -8,8 +9,8 @@ public class Database {
     private static Connection conn = null;
     private static Statement stmt = null;
 
-    // Set the path where the DB file should be stored
-    private static final String dbPath = "C:\\Users\\pkraj\\BillingApp\\bill_system.db";
+    // Path of the database file
+    private static final String dbPath = "D:\\BillingApp\\Data\\bill_system.db";
     private static final String jdbcUrl = "jdbc:sqlite:" + dbPath;
 
     public static void connect() {
