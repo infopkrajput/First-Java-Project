@@ -1,11 +1,8 @@
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class viewCustomer extends JFrame implements ActionListener {
 
@@ -17,13 +14,6 @@ public class viewCustomer extends JFrame implements ActionListener {
 
         int marginLeft = (int) (width * 0.05);
         int marginTop = 100;
-        int rowHeight = 30;
-        int spacingY = 20;
-
-        int labelWidth = (int) (width * 0.2);
-        int fieldWidth = (int) (width * 0.35);
-
-        int fieldX = marginLeft + labelWidth + 20;
 
         DefaultTableModel model = new DefaultTableModel();
         JTable table = new JTable(model);
@@ -35,9 +25,12 @@ public class viewCustomer extends JFrame implements ActionListener {
         table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 20));
         table.setFont(new Font("Arial", Font.PLAIN, 15));
 
-        try {
-            String queryForAllCustomer = "Select account_id AS AccountID , name,city,pin_code,mobile_number,connection_type,meter_number,date_of_issue from customer";
-            ResultSet rs0 = Database.getStatement().executeQuery(queryForAllCustomer);
+        String queryForAllCustomer = "SELECT account_id AS AccountID, name, city, pin_code, mobile_number, connection_type, meter_number, date_of_issue FROM customer";
+
+        try (Connection conn = Database.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs0 = stmt.executeQuery(queryForAllCustomer)) {
+
             ResultSetMetaData rsmd = rs0.getMetaData();
             int columnCount = rsmd.getColumnCount();
 
@@ -46,11 +39,12 @@ public class viewCustomer extends JFrame implements ActionListener {
                     "Mobile No", "Connection Type", "Meter No", "Date of Issue"
             };
 
-
+            model.setColumnCount(0);
             for (String col : columnNames) {
                 model.addColumn(col);
             }
 
+            // Populate data rows
             while (rs0.next()) {
                 Object[] row = new Object[columnCount];
                 for (int i = 1; i <= columnCount; i++) {
@@ -58,10 +52,12 @@ public class viewCustomer extends JFrame implements ActionListener {
                 }
                 model.addRow(row);
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+
 
         JLabel heading = new JLabel(title);
         heading.setFont(new Font("Arial", Font.BOLD, 30));
@@ -99,23 +95,8 @@ public class viewCustomer extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
 
-
     }
 
-    public void createLabel(String labelName, int x, int y, int width, int height) {
-        JLabel label = new JLabel(labelName);
-        label.setBounds(x, y, width, height);
-        label.setFont(new Font("Arial", Font.PLAIN, 20));
-        add(label);
-    }
-
-    public JTextField createTextField(int x, int y, int width, int height) {
-        JTextField field = new JTextField();
-        field.setBounds(x, y, width, height);
-        field.setFont(new Font("Arial", Font.PLAIN, 20));
-        add(field);
-        return field;
-    }
 
     private static void showExitDialog(JFrame frame) {
         int option = JOptionPane.showConfirmDialog(frame, "Are you sure you want to exit?",
@@ -126,43 +107,6 @@ public class viewCustomer extends JFrame implements ActionListener {
         }
     }
 
-    public static void addSuggestionText(JTextField field, String text) {
-        field.setText(text);
-        field.setForeground(new Color(153, 153, 153));
-        field.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (field.getText().equals(text)) {
-                    field.setText("");
-                    field.setForeground(Color.BLACK);
-                }
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (field.getText().equals("")) {
-                    field.setText(text);
-                    field.setForeground(new Color(153, 153, 153));
-                }
-            }
-        });
-    }
-
-    public JButton createButton(String name, int x, int y, int width, int height) {
-        JButton button = new JButton(name);
-        button.setBounds(x, y, width, height);
-        button.setFont(new Font("Arial", Font.PLAIN, 20));
-        add(button);
-        return button;
-    }
-
-    public Choice createChoice(int x, int y, int width, int height) {
-        Choice choice = new Choice();
-        choice.setBounds(x, y, width, height);
-        choice.setFont(new Font("Arial", Font.PLAIN, 20));
-        add(choice);
-        return choice;
-    }
 
     public static void main(String[] args) {
         new viewCustomer();

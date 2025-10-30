@@ -24,91 +24,92 @@ public class main_window extends JFrame {
         Image scaledImage = icon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
         exit.setIcon(new ImageIcon(scaledImage));
 
-        exit.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                int option = JOptionPane.showConfirmDialog(exit, "Are you sure you want to exit?",
-                        "Confirm Exit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-                if (option == JOptionPane.YES_OPTION) {
-                    System.exit(0);
-                }
+        exit.addActionListener(_ -> {
+            int option = JOptionPane.showConfirmDialog(exit, "Are you sure you want to exit?",
+                    "Confirm Exit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            if (option == JOptionPane.YES_OPTION) {
+                System.exit(0);
             }
         });
 
+        switch (Session.userTypeLoggedInAS) {
+            case "Customer" -> {
 
-        if (Session.userTypeLoggedInAS.equals("Customer")) {
+                JMenu menu = new JMenu("Main Menu");
+                menu.setFont(new Font("monospaced", Font.BOLD, 20));
+                menuBar.add(menu);
+                payBill = menu.add(createMenuItem("Pay Bill", "images/payBill.png", _ -> new payBill()));
+                printBill = menu.add(createMenuItem("Print Bill", "images/printBill.png", _ -> new printBill()));
 
-            JMenu menu = new JMenu("Main Menu");
-            menu.setFont(new Font("monospaced", Font.BOLD, 20));
-            menuBar.add(menu);
-            payBill = menu.add(createMenuItem("Pay Bill", "images/payBill.png", e -> new payBill()));
-            printBill = menu.add(createMenuItem("Print Bill", "images/printBill.png", e -> new printBill()));
+                JMenu report = new JMenu("Report");
+                report.setFont(new Font("monospaced", Font.BOLD, 20));
+                menuBar.add(report);
 
-            JMenu report = new JMenu("Report");
-            report.setFont(new Font("monospaced", Font.BOLD, 20));
-            menuBar.add(report);
+            }
+            case "Admin" -> {
 
-        } else if (Session.userTypeLoggedInAS.equals("Admin")) {
+                JMenu menu = new JMenu("Main Menu");
+                menu.setFont(new Font("monospaced", Font.BOLD, 20));
+                menuBar.add(menu);
 
-            JMenu menu = new JMenu("Main Menu");
-            menu.setFont(new Font("monospaced", Font.BOLD, 20));
-            menuBar.add(menu);
+                generateBill = menu.add(createMenuItem("Generate Bill", "images/generateBill.png", _ -> new generateBill()));
+                viewBill = menu.add(createMenuItem("View Bill", "images/viewBill.png", _ -> new viewBill()));
+                payBill = menu.add(createMenuItem("Pay Bill", "images/payBill.png", _ -> new payBill()));
+                printBill = menu.add(createMenuItem("Print Bill", "images/printBill.png", _ -> new printBill()));
 
-            generateBill = menu.add(createMenuItem("Generate Bill", "images/generateBill.png", e -> new generateBill()));
-            viewBill = menu.add(createMenuItem("View Bill", "images/viewBill.png", e -> new viewBill()));
-            payBill = menu.add(createMenuItem("Pay Bill", "images/payBill.png", e -> new payBill()));
-            printBill = menu.add(createMenuItem("Print Bill", "images/printBill.png", e -> new printBill()));
+                JMenu manage = new JMenu("Manage");
+                manage.setFont(new Font("monospaced", Font.BOLD, 20));
+                menuBar.add(manage);
 
-            JMenu manage = new JMenu("Manage");
-            manage.setFont(new Font("monospaced", Font.BOLD, 20));
-            menuBar.add(manage);
+                newCustomer = manage.add(createMenuItem("New Customer", "images/newCustomer.png", _ -> new newCustomer()));
+                editCustomer = manage.add(createMenuItem("Edit Customer", "images/editCustomer.png", _ -> new editCustomer()));
+                viewCustomers = manage.add(createMenuItem("View Customers", "images/viewCustomer.png", _ -> new viewCustomer()));
 
-            newCustomer = manage.add(createMenuItem("New Customer", "images/newCustomer.png", e -> new newCustomer()));
-            editCustomer = manage.add(createMenuItem("Edit Customer", "images/editCustomer.png", e -> new editCustomer()));
-            viewCustomers = manage.add(createMenuItem("View Customers", "images/viewCustomer.png", e -> new viewCustomer()));
+                JMenu report = new JMenu("Report");
+                report.setFont(new Font("monospaced", Font.BOLD, 20));
+                menuBar.add(report);
 
-            JMenu report = new JMenu("Report");
-            report.setFont(new Font("monospaced", Font.BOLD, 20));
-            menuBar.add(report);
+                payBillReport = report.add(createMenuItem("Bill wise Report", "images/editCustomer.png", _ -> new billWiseReport()));
+                customerWise = report.add(createMenuItem("Customer wise Record", "images/editCustomer.png", _ -> new customerWiseReport()));
 
-            payBillReport = report.add(createMenuItem("Bill wise Report", "images/editCustomer.png", e -> new billWiseReport()));
-            customerWise = report.add(createMenuItem("Customer wise Record", "images/editCustomer.png", e -> new customerWiseReport()));
+            }
+            case "root" -> {
+                JMenu menu = new JMenu("Main Menu");
+                menu.setFont(new Font("monospaced", Font.BOLD, 20));
+                menuBar.add(menu);
 
-        } else if (Session.userTypeLoggedInAS.equals("root")) {
-            JMenu menu = new JMenu("Main Menu");
-            menu.setFont(new Font("monospaced", Font.BOLD, 20));
-            menuBar.add(menu);
+                generateBill = menu.add(createMenuItem("Generate Bill", "images/generateBill.png", _ -> new generateBill()));
+                viewBill = menu.add(createMenuItem("View Bill", "images/viewBill.png", _ -> new viewBill()));
+                payBill = menu.add(createMenuItem("Pay Bill", "images/payBill.png", _ -> new payBill()));
+                printBill = menu.add(createMenuItem("Print Bill", "images/printBill.png", _ -> new printBill()));
 
-            generateBill = menu.add(createMenuItem("Generate Bill", "images/generateBill.png", e -> new generateBill()));
-            viewBill = menu.add(createMenuItem("View Bill", "images/viewBill.png", e -> new viewBill()));
-            payBill = menu.add(createMenuItem("Pay Bill", "images/payBill.png", e -> new payBill()));
-            printBill = menu.add(createMenuItem("Print Bill", "images/printBill.png", e -> new printBill()));
+                JMenu manage = new JMenu("Manage");
+                manage.setFont(new Font("monospaced", Font.BOLD, 20));
+                menuBar.add(manage);
 
-            JMenu manage = new JMenu("Manage");
-            manage.setFont(new Font("monospaced", Font.BOLD, 20));
-            menuBar.add(manage);
+                newCustomer = manage.add(createMenuItem("New Customer", "images/newCustomer.png", _ -> new newCustomer()));
+                editCustomer = manage.add(createMenuItem("Edit Customer", "images/editCustomer.png", _ -> new editCustomer()));
+                viewCustomers = manage.add(createMenuItem("View Customers", "images/viewCustomer.png", _ -> new viewCustomer()));
 
-            newCustomer = manage.add(createMenuItem("New Customer", "images/newCustomer.png", e -> new newCustomer()));
-            editCustomer = manage.add(createMenuItem("Edit Customer", "images/editCustomer.png", e -> new editCustomer()));
-            viewCustomers = manage.add(createMenuItem("View Customers", "images/viewCustomer.png", e -> new viewCustomer()));
+                JMenu report = new JMenu("Report");
+                report.setFont(new Font("monospaced", Font.BOLD, 20));
+                menuBar.add(report);
 
-            JMenu report = new JMenu("Report");
-            report.setFont(new Font("monospaced", Font.BOLD, 20));
-            menuBar.add(report);
+                payBillReport = report.add(createMenuItem("Bill wise Report", "images/editCustomer.png", _ -> new billWiseReport()));
+                customerWise = report.add(createMenuItem("Customer Record", "images/editCustomer.png", _ -> new customerWiseReport()));
 
-            payBillReport = report.add(createMenuItem("Pending Bill Report", "images/editCustomer.png", e -> new billWiseReport()));
-            customerWise = report.add(createMenuItem("Customer Record", "images/editCustomer.png", e -> new customerWiseReport()));
+                JMenu utility = new JMenu("Utility");
+                utility.setFont(new Font("monospaced", Font.BOLD, 20));
+                settings = utility.add(createMenuItem("Settings", "images/editCustomer.png", _ -> new Settings()));
+                menuBar.add(utility);
 
-            JMenu utility = new JMenu("Utility");
-            utility.setFont(new Font("monospaced", Font.BOLD, 20));
-            settings = utility.add(createMenuItem("Settings", "images/editCustomer.png", e -> new Settings()));
-            menuBar.add(utility);
-
+            }
         }
+
         JMenu close = new JMenu("Close");
         close.setFont(new Font("monospaced", Font.BOLD, 20));
         menuBar.add(close);
         close.add(exit);
-
 
         setTitle("Electricity Bill Management | Ver: 1.0.1 | Login As: " + Session.userTypeLoggedInAS + " | User Name: " + Session.userNameLoggedIn);
         setExtendedState(JFrame.MAXIMIZED_BOTH);

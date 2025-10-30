@@ -2,9 +2,9 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Date;
 
 public class newCustomer extends JFrame implements ActionListener {
     Choice state, idProofType, connectionType;
@@ -146,15 +146,15 @@ public class newCustomer extends JFrame implements ActionListener {
 
             java.sql.Date tdate = new java.sql.Date(System.currentTimeMillis());
 
-            if (connectionTypeString.equals("")) {
+            if (connectionTypeString.isEmpty()) {
                 isCorrect = false;
             }
 
-            if (stateString.equals("")) {
+            if (stateString.isEmpty()) {
                 isCorrect = false;
             }
 
-            if (idProofTypeString.equals("")) {
+            if (idProofTypeString.isEmpty()) {
                 isCorrect = false;
             }
 
@@ -190,7 +190,7 @@ public class newCustomer extends JFrame implements ActionListener {
                 addSuggestionText(pinCode, "Pin Code should not be empty");
                 pinCode.setBorder(redBorder);
                 isCorrect = false;
-            } else if (pinCodeString.length() > 6 || pinCodeString.length() < 6 || !isOnlyDigits(pinCodeString)) {
+            } else if (pinCodeString.length() != 6 || !isOnlyDigits(pinCodeString)) {
                 addSuggestionText(pinCode, "Pin Code must be in 6 digits");
                 pinCode.setBorder(redBorder);
                 isCorrect = false;
@@ -220,16 +220,22 @@ public class newCustomer extends JFrame implements ActionListener {
                 return;
             }
 
-            try {
-//                String previousMeterNumberVerify = "SELECT COALESCE(MAX(RIGHT(meter_number, 6)),'000000') AS max_last_six_digits FROM customer";
-                String previousMeterNumberVerify = "SELECT COALESCE(MAX(CAST(SUBSTR(meter_number, -6) AS INTEGER)), 0) AS max_last_six_digits FROM customer";
+            String previousMeterNumberVerify = "SELECT COALESCE(MAX(CAST(SUBSTR(meter_number, -6) AS INTEGER)), 0) AS max_last_six_digits FROM customer";
+            String accountIdVerify = "SELECT COALESCE(MAX(CAST(account_id AS INTEGER)), 0) AS max_account_id FROM customer";
+            String insertCustomerQuery = "INSERT INTO customer (account_id, name, address, city, pin_code, mobile_number, connection_type, state, id_proof_type, id_proof_number, meter_number, date_of_issue) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-                ResultSet rs0 = Database.getStatement().executeQuery(previousMeterNumberVerify);
+            try (Connection conn = Database.getConnection();
+                 PreparedStatement meterStmt = conn.prepareStatement(previousMeterNumberVerify);
+                 PreparedStatement accountStmt = conn.prepareStatement(accountIdVerify);
+                 PreparedStatement insertStmt = conn.prepareStatement(insertCustomerQuery)) {
+
                 int newMeterNumber = 1;
-                if (rs0.next()) {
-                    String maxLastSixDigits = rs0.getString("max_last_six_digits");
-                    if (maxLastSixDigits != null) {
-                        newMeterNumber = Integer.parseInt(maxLastSixDigits) + 1;
+                try (ResultSet rs0 = meterStmt.executeQuery()) {
+                    if (rs0.next()) {
+                        String maxLastSixDigits = rs0.getString("max_last_six_digits");
+                        if (maxLastSixDigits != null) {
+                            newMeterNumber = Integer.parseInt(maxLastSixDigits) + 1;
+                        }
                     }
                 }
 
@@ -237,41 +243,33 @@ public class newCustomer extends JFrame implements ActionListener {
                 String yearMonth = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMM"));
                 String meterNumberIncludingYearAndMonth = yearMonth + meterNumberString;
 
-//                String accountIdVerify = "SELECT COALESCE(MAX(account_id), '00000000') AS max_account_id FROM customer";
-                String accountIdVerify = "SELECT COALESCE(MAX(CAST(account_id AS INTEGER)), 0) AS max_account_id FROM customer";
-
-                ResultSet rs = Database.getStatement().executeQuery(accountIdVerify);
-                int newAccountId = 1; // default first account id
-
-                if (rs.next()) {
-                    String maxAccountId = rs.getString("max_account_id");
-                    if (maxAccountId != null) {
-                        // Convert to integer and add 1
-                        newAccountId = Integer.parseInt(maxAccountId) + 1;
+                int newAccountId = 1;
+                try (ResultSet rs = accountStmt.executeQuery()) {
+                    if (rs.next()) {
+                        String maxAccountId = rs.getString("max_account_id");
+                        if (maxAccountId != null) {
+                            newAccountId = Integer.parseInt(maxAccountId) + 1;
+                        }
                     }
                 }
-                // Format newAccountId to 8 digits with leading zeros
                 String accountIdString = String.format("%08d", newAccountId);
 
-//                String insertCustomerQuery = "INSERT INTO customer (account_id, name, address, city, pin_code, mobile_number,connection_type, state, id_proof_type, id_proof_number, meter_number,date_of_issue)\n" + "VALUES ('" + accountIdString + "', '" + nameString + "', '" + addressString + "', '" + cityString + "', '" + pinCodeString + "', '" + mobileNumberString + "','" + connectionTypeString + "', '" + stateString + "', '" + idProofTypeString + "', '" + idProofNumberString + "', '" + meterNumberIncludingYearAndMonth + "','" + tdate.toString() + "')";
-//                Database.getStatement().executeUpdate(insertCustomerQuery);
-                String insertCustomerQuery = "INSERT INTO customer (account_id, name, address, city, pin_code, mobile_number, connection_type, state, id_proof_type, id_proof_number, meter_number, date_of_issue) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                PreparedStatement pstmt = Database.getConnection().prepareStatement(insertCustomerQuery);
-                pstmt.setString(1, accountIdString);
-                pstmt.setString(2, nameString);
-                pstmt.setString(3, addressString);
-                pstmt.setString(4, cityString);
-                pstmt.setString(5, pinCodeString);
-                pstmt.setString(6, mobileNumberString);
-                pstmt.setString(7, connectionTypeString);
-                pstmt.setString(8, stateString);
-                pstmt.setString(9, idProofTypeString);
-                pstmt.setString(10, idProofNumberString);
-                pstmt.setString(11, meterNumberIncludingYearAndMonth);
-                pstmt.setString(12, tdate.toString());
-                pstmt.executeUpdate();
+                insertStmt.setString(1, accountIdString);
+                insertStmt.setString(2, nameString);
+                insertStmt.setString(3, addressString);
+                insertStmt.setString(4, cityString);
+                insertStmt.setString(5, pinCodeString);
+                insertStmt.setString(6, mobileNumberString);
+                insertStmt.setString(7, connectionTypeString);
+                insertStmt.setString(8, stateString);
+                insertStmt.setString(9, idProofTypeString);
+                insertStmt.setString(10, idProofNumberString);
+                insertStmt.setString(11, meterNumberIncludingYearAndMonth);
+                insertStmt.setString(12, tdate.toString());
 
-                JOptionPane.showMessageDialog(null, "Account Created Successfully ");
+                insertStmt.executeUpdate();
+
+                JOptionPane.showMessageDialog(null, "Account Created Successfully");
 
                 meterNumberField.setText(meterNumberIncludingYearAndMonth);
                 accountIdField.setText(accountIdString);
@@ -394,25 +392,7 @@ public class newCustomer extends JFrame implements ActionListener {
     }
 
     public static void addSuggestionText(JTextField field, String text) {
-        field.setText(text);
-        field.setForeground(new Color(153, 153, 153));
-        field.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (field.getText().equals(text)) {
-                    field.setText("");
-                    field.setForeground(Color.BLACK);
-                }
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (field.getText().equals("")) {
-                    field.setText(text);
-                    field.setForeground(new Color(153, 153, 153));
-                }
-            }
-        });
+        payBill.addSuggestionText(field, text);
     }
 
     public static boolean isOnlyDigits(String str) {

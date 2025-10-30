@@ -2,8 +2,9 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.Connection;
 
 public class editCustomer extends JFrame implements ActionListener {
 
@@ -136,11 +137,80 @@ public class editCustomer extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == back) {
             showExitDialog(editCustomer.this);
+        } else if (e.getSource() == check) {
+            Border redBorder = BorderFactory.createLineBorder(Color.RED, 2);
+            Border greenBorder = BorderFactory.createLineBorder(Color.green, 2);
+            String accountIdString = accountId.getText();
+
+            String query = "SELECT * FROM customer WHERE account_id = ?";
+
+            try (Connection conn = Database.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+                pstmt.setString(1, accountIdString);
+
+                try (ResultSet rs0 = pstmt.executeQuery()) {
+                    if (rs0.next()) {
+                        name.setEditable(true);
+                        address.setEditable(true);
+                        city.setEditable(true);
+                        pinCode.setEditable(true);
+                        state.setEnabled(true);
+                        mobileNumber.setEditable(true);
+                        idProofType.setEnabled(true);
+                        meterNumberField.setEditable(true);
+                        idProofNumber.setEditable(true);
+
+                        accountId.setBorder(greenBorder);
+
+                        name.setText(rs0.getString("name"));
+                        address.setText(rs0.getString("address"));
+                        city.setText(rs0.getString("city"));
+                        pinCode.setText(rs0.getString("pin_code"));
+                        mobileNumber.setText(rs0.getString("mobile_number"));
+                        idProofNumber.setText(rs0.getString("id_proof_number"));
+                        meterNumberField.setText(rs0.getString("meter_number"));
+                        dateToday.setText(rs0.getString("date_of_issue"));
+
+                        state.select(rs0.getString("state"));
+                        idProofType.select(rs0.getString("id_proof_type"));
+                    } else {
+                        addSuggestionText(accountId, "Account ID not found");
+                        accountId.setBorder(redBorder);
+                        name.setText("");
+                        address.setText("");
+                        city.setText("");
+                        pinCode.setText("");
+                        mobileNumber.setText("");
+                        idProofNumber.setText("");
+                        meterNumberField.setText("");
+                        state.select(0);
+                        idProofType.select(0);
+
+                        name.setEditable(false);
+                        address.setEditable(false);
+                        city.setEditable(false);
+                        pinCode.setEditable(false);
+                        state.setEnabled(false);
+                        mobileNumber.setEditable(false);
+                        idProofType.setEnabled(false);
+                        meterNumberField.setEditable(false);
+                        idProofNumber.setEditable(false);
+                        JOptionPane.showMessageDialog(this, "No data found for the entered Account ID.", "Not Found", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                }
+
+            } catch (Exception ECheck) {
+                ECheck.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error fetching data! Database connection.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+
         } else if (e.getSource() == submit) {
             Border redBorder = BorderFactory.createLineBorder(Color.RED, 2);
             Border normalBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
             String checkName = name.getText();
-            if (checkName.equals("")) {
+            if (checkName.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Enter correct account id", "Not Found", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 boolean isCorrect = true;
@@ -155,7 +225,7 @@ public class editCustomer extends JFrame implements ActionListener {
                 String stateString = state.getSelectedItem();
                 String meterNumberString = meterNumberField.getText();
 
-                if (nameString.equals("")) {
+                if (nameString.isEmpty()) {
                     addSuggestionText(name, "Customer name should not be empty");
                     name.setBorder(redBorder);
                     isCorrect = false;
@@ -167,7 +237,7 @@ public class editCustomer extends JFrame implements ActionListener {
                     name.setBorder(normalBorder);
                 }
 
-                if (addressString.equals("")) {
+                if (addressString.isEmpty()) {
                     addSuggestionText(address, "Address should not be empty");
                     address.setBorder(redBorder);
                     isCorrect = false;
@@ -175,7 +245,7 @@ public class editCustomer extends JFrame implements ActionListener {
                     address.setBorder(normalBorder);
                 }
 
-                if (cityString.equals("")) {
+                if (cityString.isEmpty()) {
                     addSuggestionText(city, "City Should not be empty");
                     city.setBorder(redBorder);
                     isCorrect = false;
@@ -183,11 +253,11 @@ public class editCustomer extends JFrame implements ActionListener {
                     city.setBorder(normalBorder);
                 }
 
-                if (pinCodeString.equals("")) {
+                if (pinCodeString.isEmpty()) {
                     addSuggestionText(pinCode, "Pin Code should not be empty");
                     pinCode.setBorder(redBorder);
                     isCorrect = false;
-                } else if (pinCodeString.length() > 6 || pinCodeString.length() < 6 || !isOnlyDigits(pinCodeString)) {
+                } else if (pinCodeString.length() != 6 || !isOnlyDigits(pinCodeString)) {
                     addSuggestionText(pinCode, "Pin Code must be in 6 digits");
                     pinCode.setBorder(redBorder);
                     isCorrect = false;
@@ -195,13 +265,13 @@ public class editCustomer extends JFrame implements ActionListener {
                     pinCode.setBorder(normalBorder);
                 }
 
-                if (idProofNumberString.equals("")) {
+                if (idProofNumberString.isEmpty()) {
                     idProofNumber.setBorder(redBorder);
                     isCorrect = false;
                 } else {
                     idProofNumber.setBorder(normalBorder);
                 }
-                if (mobileNumberString.equals("")) {
+                if (mobileNumberString.isEmpty()) {
                     addSuggestionText(mobileNumber, "Mobile number should not empty");
                     mobileNumber.setBorder(redBorder);
                     isCorrect = false;
@@ -211,7 +281,7 @@ public class editCustomer extends JFrame implements ActionListener {
                     mobileNumber.setBorder(redBorder);
                     isCorrect = false;
                 }
-                if (meterNumberString.equals("")) {
+                if (meterNumberString.isEmpty()) {
                     addSuggestionText(meterNumberField, "Meter number number should not empty");
                     meterNumberField.setBorder(redBorder);
                     isCorrect = false;
@@ -224,12 +294,34 @@ public class editCustomer extends JFrame implements ActionListener {
                     return;
                 }
 
-                try {
-                    String modifyDetail = "UPDATE customer SET name = '" + nameString + "' , address = '" + addressString + "', city = '" + cityString + "', pin_code = '" + pinCodeString + "', mobile_number = '" + mobileNumberString + "',state = '" + stateString + "', id_proof_type = '" + idProofTypeString + "', id_proof_number = '" + idProofNumberString + "', meter_number = '" + meterNumberString + "' where account_id = '" + accountIdString + "'  ";
-                    Database.getStatement().executeUpdate(modifyDetail);
-                } catch (SQLException ex) {
+                String modifyDetail = "UPDATE customer SET name = ?, address = ?, city = ?, pin_code = ?, mobile_number = ?, state = ?, id_proof_type = ?, id_proof_number = ?, meter_number = ? WHERE account_id = ?";
+
+                try (Connection conn = Database.getConnection();
+                     PreparedStatement pstmt = conn.prepareStatement(modifyDetail)) {
+
+                    pstmt.setString(1, nameString);
+                    pstmt.setString(2, addressString);
+                    pstmt.setString(3, cityString);
+                    pstmt.setString(4, pinCodeString);
+                    pstmt.setString(5, mobileNumberString);
+                    pstmt.setString(6, stateString);
+                    pstmt.setString(7, idProofTypeString);
+                    pstmt.setString(8, idProofNumberString);
+                    pstmt.setString(9, meterNumberString);
+                    pstmt.setString(10, accountIdString);
+
+                    int rowsUpdated = pstmt.executeUpdate();
+
+                    if (rowsUpdated > 0) {
+                        System.out.println("Customer details updated successfully.");
+                    } else {
+                        System.out.println("No customer found with account ID: " + accountIdString);
+                    }
+
+                } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
+
 
                 name.setText("");
                 address.setText("");
@@ -253,70 +345,6 @@ public class editCustomer extends JFrame implements ActionListener {
 
                 JOptionPane.showMessageDialog(null, "Account Modified Successfully ");
             }
-        } else if (e.getSource() == check) {
-            Border redBorder = BorderFactory.createLineBorder(Color.RED, 2);
-            Border greenBorder = BorderFactory.createLineBorder(Color.green, 2);
-            Border normalBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
-
-            String accountIdString = accountId.getText();
-
-            try {
-                String query = "select * from customer where account_id = '" + accountIdString + "' ";
-                ResultSet rs0 = Database.getStatement().executeQuery(query);
-                if (rs0.next()) {
-                    name.setEditable(true);
-                    address.setEditable(true);
-                    city.setEditable(true);
-                    pinCode.setEditable(true);
-                    state.setEnabled(true);
-                    mobileNumber.setEditable(true);
-                    idProofType.setEnabled(true);
-                    meterNumberField.setEditable(true);
-                    idProofNumber.setEditable(true);
-
-                    accountId.setBorder(greenBorder);
-
-                    name.setText(rs0.getString("name"));
-                    address.setText(rs0.getString("address"));
-                    city.setText(rs0.getString("city"));
-                    pinCode.setText(rs0.getString("pin_code"));
-                    mobileNumber.setText(rs0.getString("mobile_number"));
-                    idProofNumber.setText(rs0.getString("id_proof_number"));
-                    meterNumberField.setText(rs0.getString("meter_number"));
-                    dateToday.setText(rs0.getString("date_of_issue"));
-
-                    state.select(rs0.getString("state"));
-                    idProofType.select(rs0.getString("id_proof_type"));
-                } else {
-                    addSuggestionText(accountId, "Account ID not found");
-                    accountId.setBorder(redBorder);
-                    name.setText("");
-                    address.setText("");
-                    city.setText("");
-                    pinCode.setText("");
-                    mobileNumber.setText("");
-                    idProofNumber.setText("");
-                    meterNumberField.setText("");
-                    state.select(0);
-                    idProofType.select(0);
-
-                    name.setEditable(false);
-                    address.setEditable(false);
-                    city.setEditable(false);
-                    pinCode.setEditable(false);
-                    state.setEnabled(false);
-                    mobileNumber.setEditable(false);
-                    idProofType.setEnabled(false);
-                    meterNumberField.setEditable(false);
-                    idProofNumber.setEditable(false);
-                    JOptionPane.showMessageDialog(this, "No data found for the entered Account ID.", "Not Found", JOptionPane.INFORMATION_MESSAGE);
-                }
-
-            } catch (Exception ECheck) {
-                ECheck.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error fetching data! Database connection.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-
         }
     }
 
@@ -359,7 +387,6 @@ public class editCustomer extends JFrame implements ActionListener {
         return choice;
     }
 
-
     public void addStates(Choice stateChoice) {
         String[] states = {"", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"};
         for (String s : states) {
@@ -374,27 +401,8 @@ public class editCustomer extends JFrame implements ActionListener {
         }
     }
 
-
     public static void addSuggestionText(JTextField field, String text) {
-        field.setText(text);
-        field.setForeground(new Color(153, 153, 153));
-        field.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (field.getText().equals(text)) {
-                    field.setText("");
-                    field.setForeground(Color.BLACK);
-                }
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (field.getText().equals("")) {
-                    field.setText(text);
-                    field.setForeground(new Color(153, 153, 153));
-                }
-            }
-        });
+        payBill.addSuggestionText(field, text);
     }
 
     public static boolean isOnlyDigits(String str) {
@@ -405,7 +413,6 @@ public class editCustomer extends JFrame implements ActionListener {
             return false;
         }
     }
-
 
     public static void main(String[] args) {
         new editCustomer();

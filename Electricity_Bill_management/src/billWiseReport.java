@@ -1,6 +1,8 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+
 import com.toedter.calendar.JDateChooser;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
@@ -8,11 +10,11 @@ import java.text.SimpleDateFormat;
 
 public class billWiseReport extends JFrame implements ActionListener {
 
-    private JDateChooser dateChooserFrom, dateChooserTo;
-    private Choice typeChoice;
-    private JTable table;
-    private DefaultTableModel tableModel;
-    private JButton fetchButton;
+    private final JDateChooser dateChooserFrom;
+    private final JDateChooser dateChooserTo;
+    private final Choice typeChoice;
+    private final DefaultTableModel tableModel;
+    private final JButton fetchButton;
 
     billWiseReport() {
         String title = "Bill-wise Report";
@@ -53,7 +55,7 @@ public class billWiseReport extends JFrame implements ActionListener {
 
 
         tableModel = new DefaultTableModel(new String[]{"ID", "Name", "City", "Invoice No.", "Date", "Amount", "Status"}, 0);
-        table = new JTable(tableModel);
+        JTable table = new JTable(tableModel);
         table.setFont(new Font("Arial", Font.PLAIN, 18));
         table.setRowHeight(25);
 
@@ -106,33 +108,10 @@ public class billWiseReport extends JFrame implements ActionListener {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             String fromDate = sdf.format(dateChooserFrom.getDate());
             String toDate = sdf.format(dateChooserTo.getDate());
-            String filter = typeChoice.getSelectedItem().toString();
+            String filter = typeChoice.getSelectedItem();
 
             try {
-                StringBuilder queryBuilder = new StringBuilder(
-                        "SELECT \n" +
-                                "    customer.account_id AS AccountID,\n" +
-                                "    customer.name,\n" +
-                                "    customer.city,\n" +
-                                "    transactions.bill_number,\n" +
-                                "    transactions.date_of_transaction,\n" +
-                                "    transactions.amount,\n" +
-                                "    transactions.payment_status\n" +
-                                "FROM \n" +
-                                "    customer\n" +
-                                "JOIN \n" +
-                                "    transactions\n" +
-                                "ON \n" +
-                                "    customer.account_id = transactions.account_id\n" +
-                                "WHERE \n" +
-                                "    transactions.date_of_transaction BETWEEN ? AND ?"
-                );
-
-                if (filter.equals("Paid")) {
-                    queryBuilder.append(" AND transactions.payment_status = 'YES'");
-                } else if (filter.equals("Pending")) {
-                    queryBuilder.append(" AND transactions.payment_status = 'NO'");
-                }
+                StringBuilder queryBuilder = getStringBuilder(filter);
 
                 PreparedStatement ps = Database.getConnection().prepareStatement(queryBuilder.toString());
                 ps.setString(1, fromDate);
@@ -152,8 +131,39 @@ public class billWiseReport extends JFrame implements ActionListener {
 
             } catch (SQLException ex) {
                 ex.printStackTrace();
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
             }
         }
+    }
+
+    private static StringBuilder getStringBuilder(String filter) {
+        StringBuilder queryBuilder = new StringBuilder(
+                """
+                        SELECT\s
+                            customer.account_id AS AccountID,
+                            customer.name,
+                            customer.city,
+                            transactions.bill_number,
+                            transactions.date_of_transaction,
+                            transactions.amount,
+                            transactions.payment_status
+                        FROM\s
+                            customer
+                        JOIN\s
+                            transactions
+                        ON\s
+                            customer.account_id = transactions.account_id
+                        WHERE\s
+                            transactions.date_of_transaction BETWEEN ? AND ?"""
+        );
+
+        if (filter.equals("Paid")) {
+            queryBuilder.append(" AND transactions.payment_status = 'YES'");
+        } else if (filter.equals("Pending")) {
+            queryBuilder.append(" AND transactions.payment_status = 'NO'");
+        }
+        return queryBuilder;
     }
 
     public void createLabel(String labelName, int x, int y, int width, int height) {
@@ -178,6 +188,7 @@ public class billWiseReport extends JFrame implements ActionListener {
         add(button);
         return button;
     }
+
     private static void showExitDialog(JFrame frame) {
         int option = JOptionPane.showConfirmDialog(frame, "Are you sure you want to exit?",
                 "Confirm Exit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);

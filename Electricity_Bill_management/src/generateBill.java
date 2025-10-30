@@ -2,10 +2,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class generateBill extends JFrame implements ActionListener {
 
@@ -13,7 +10,7 @@ public class generateBill extends JFrame implements ActionListener {
     JButton check, createBill, close;
     Choice state;
 
-    generateBill() {
+    public generateBill() {
         String title = "Generate Bill";
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int width = (int) (screenSize.width * 0.95);
@@ -71,7 +68,6 @@ public class generateBill extends JFrame implements ActionListener {
         pinCode.setEditable(false);
         pinCode.setFocusable(false);
 
-
         createLabel("Mobile Number:", marginLeft, marginTop + (rowHeight + spacingY) * 7, labelWidth, rowHeight);
         mobileNumber = createTextField(fieldX, marginTop + (rowHeight + spacingY) * 7, fieldWidth, rowHeight);
         mobileNumber.setEditable(false);
@@ -119,15 +115,11 @@ public class generateBill extends JFrame implements ActionListener {
             }
         });
 
-        int imageSize = Math.min(width - (fieldX + fieldWidth + 100), height / 2);
-        int imageX = fieldX + fieldWidth + ((width - (fieldX + fieldWidth)) - imageSize) / 2;
-        int imageY = (height - imageSize) / 2;
-
         ImageIcon image = new ImageIcon(ClassLoader.getSystemResource("images/generateBill.png"));
         Image imageScale = image.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
         ImageIcon imageFinal = new ImageIcon(imageScale);
         JLabel imageLabel = new JLabel(imageFinal);
-        imageLabel.setBounds(imageX, imageY, imageSize, imageSize);
+        imageLabel.setBounds(fieldX + fieldWidth + 100, (height - 300) / 2, 300, 300);
         add(imageLabel);
 
         setSize(width, height);
@@ -140,39 +132,47 @@ public class generateBill extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == check) {
-            Border redBorder = BorderFactory.createLineBorder(Color.RED, 2);
-            Border greenBorder = BorderFactory.createLineBorder(Color.green, 2);
-            Border normalBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
+            checkAccountId();
+        } else if (e.getSource() == createBill) {
+            createBill();
+        } else if (e.getSource() == close) {
+            showExitDialog(this);
+        }
+    }
 
-            billNumber.setText("");
-            totalBilled.setText("");
-            boolean isCorrect = true;
-            String accountIdString = accountId.getText();
-            if (accountIdString.equals("Enter Account Id")) {
-                accountId.setBorder(redBorder);
-                isCorrect = false;
-            } else {
-                accountId.setBorder(normalBorder);
-            }
+    private void checkAccountId() {
+        Border redBorder = BorderFactory.createLineBorder(Color.RED, 2);
+        Border greenBorder = BorderFactory.createLineBorder(Color.GREEN, 2);
+        Border normalBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
 
-            if (!isCorrect) {
-                JOptionPane.showMessageDialog(null, "Please fill teh account id correctly.");
-                return;
-            }
+        billNumber.setText("");
+        totalBilled.setText("");
+        String accountIdString = accountId.getText();
 
-            try {
-                String query = "select * from customer where account_id = '" + accountIdString + "' ";
-                ResultSet rs0 = Database.getStatement().executeQuery(query);
-                if (rs0.next()) {
+        if (accountIdString.isEmpty() || accountIdString.equals("Enter Account Id")) {
+            accountId.setBorder(redBorder);
+            JOptionPane.showMessageDialog(null, "Please fill the account id correctly.");
+            return;
+        } else {
+            accountId.setBorder(normalBorder);
+        }
+
+        String query = "SELECT * FROM customer WHERE account_id = ?";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+            pstmt.setString(1, accountIdString);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
                     accountId.setBorder(greenBorder);
-                    connectionType.setText(rs0.getString("connection_type"));
-                    name.setText(rs0.getString("name"));
-                    address.setText(rs0.getString("address"));
-                    city.setText(rs0.getString("city"));
-                    pinCode.setText(rs0.getString("pin_code"));
-                    mobileNumber.setText(rs0.getString("mobile_number"));
-                    state.select(rs0.getString("state"));
-
+                    connectionType.setText(rs.getString("connection_type"));
+                    name.setText(rs.getString("name"));
+                    address.setText(rs.getString("address"));
+                    city.setText(rs.getString("city"));
+                    pinCode.setText(rs.getString("pin_code"));
+                    mobileNumber.setText(rs.getString("mobile_number"));
+                    state.select(rs.getString("state"));
                 } else {
                     addSuggestionText(accountId, "Account ID not found");
                     connectionType.setText("");
@@ -186,138 +186,125 @@ public class generateBill extends JFrame implements ActionListener {
                     accountId.setBorder(redBorder);
                     JOptionPane.showMessageDialog(this, "No data found for the entered Account ID.", "Not Found", JOptionPane.INFORMATION_MESSAGE);
                 }
-
-
-            } catch (Exception ECheck) {
-                ECheck.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error fetching data! Database connection.", "Error", JOptionPane.ERROR_MESSAGE);
             }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error fetching data! Database connection.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void createBill() {
+        Border redBorder = BorderFactory.createLineBorder(Color.RED, 2);
+        Border normalBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
+
+        String accountIdString = accountId.getText();
+        String totalConsumedUnitsString = totalConsumedUnits.getText();
+        String connectionTypeString = connectionType.getText();
+
+        if (totalConsumedUnitsString.isEmpty() || totalConsumedUnitsString.equals("Enter Total units")) {
+            totalConsumedUnits.setBorder(redBorder);
+            JOptionPane.showMessageDialog(null, "Please enter the account id and click on check.\nThen enter total unit.");
+            return;
+        } else {
+            totalConsumedUnits.setBorder(normalBorder);
         }
 
-        if (e.getSource() == createBill) {
-            Border redBorder = BorderFactory.createLineBorder(Color.RED, 2);
-            Border greenBorder = BorderFactory.createLineBorder(Color.green, 2);
-            Border normalBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
+        double totalConsumedUnitsDouble;
+        try {
+            totalConsumedUnitsDouble = Double.parseDouble(totalConsumedUnitsString);
+        } catch (NumberFormatException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Total units must be a number.");
+            return;
+        }
 
-            String accountIdString = accountId.getText();
-            String totalConsumedUnitsString = totalConsumedUnits.getText();
-            String connectionTypeString = connectionType.getText();
-            String billNumberString = "";
+        if (accountIdString.isEmpty() || accountIdString.equals("Enter Account Id")) {
+            accountId.setBorder(redBorder);
+            JOptionPane.showMessageDialog(null, "Please enter the account id and click on check.");
+            return;
+        } else {
+            accountId.setBorder(normalBorder);
+        }
 
-            double rate_per_unit = 0, total_amount = 0;
-            double totalConsumedUnitsDouble = 0;
-            boolean isCorrect = true;
+        double rate_per_unit, total_amount;
 
+        if ("Individual".equalsIgnoreCase(connectionTypeString)) {
+            rate_per_unit = 5.5;
+        } else if ("Corporate".equalsIgnoreCase(connectionTypeString)) {
+            rate_per_unit = 8.5;
+        } else {
+            JOptionPane.showMessageDialog(null, "Unknown connection type.");
+            return;
+        }
 
-            if (totalConsumedUnitsString.equals("Enter Total units")) {
-                totalConsumedUnits.setBorder(redBorder);
-                accountId.setBorder(redBorder);
-                isCorrect = false;
-                JOptionPane.showMessageDialog(null, "Please Enter the account id and click on check.\nThen enter total unit.");
-                return;
-            } else {
-                totalConsumedUnits.setBorder(normalBorder);
-            }
+        total_amount = totalConsumedUnitsDouble * rate_per_unit;
 
-            try {
-                totalConsumedUnitsDouble = Double.parseDouble(totalConsumedUnitsString);
-            } catch (NumberFormatException ed) {
-                ed.printStackTrace();
-            }
-
-            if (accountIdString.equals("Enter Account Id")) {
-                accountId.setBorder(redBorder);
-                isCorrect = false;
-                JOptionPane.showMessageDialog(null, "Please Enter the account id and click on check.");
-                return;
-            } else {
-                accountId.setBorder(normalBorder);
-            }
-
-
-            if (!isCorrect) {
-                JOptionPane.showMessageDialog(null, "Please fill all fields correctly.");
-                return;
-            }
-
-            if (connectionTypeString.equals("Individual")) {
-                rate_per_unit = 5.5;
-                total_amount = totalConsumedUnitsDouble * rate_per_unit;
-            } else if (connectionTypeString.equals("Corporate")) {
-                rate_per_unit = 8.5;
-                total_amount = totalConsumedUnitsDouble * rate_per_unit;
-            }
-
-            try {
-                double carryForwardAmount = 0;
-
-                // 1. Carry Forward Previous Unpaid Amount
-                String checkBill = "SELECT amount FROM transactions WHERE account_id = ? AND payment_status = 'NO'";
-                PreparedStatement checkStmt = Database.getConnection().prepareStatement(checkBill);
+        try (Connection conn = Database.getConnection()) {
+            // Carry forward previous unpaid amount
+            double carryForwardAmount = 0;
+            String checkBill = "SELECT amount FROM transactions WHERE account_id = ? AND payment_status = 'NO'";
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkBill)) {
                 checkStmt.setString(1, accountIdString);
-                ResultSet rs = checkStmt.executeQuery();
-
-                if (rs.next()) {
-                    carryForwardAmount = rs.getDouble("amount");
+                try (ResultSet rs = checkStmt.executeQuery()) {
+                    if (rs.next()) {
+                        carryForwardAmount = rs.getDouble("amount");
+                    }
                 }
+            }
 
-                // 2. Update Old Bill as 'CF' (Carried Forward)
-                String updatePreviousBillQuery = "UPDATE transactions SET payment_status = 'CF' WHERE account_id = ? AND payment_status = 'NO'";
-                PreparedStatement updateStmt = Database.getConnection().prepareStatement(updatePreviousBillQuery);
+            // Update old bill status to 'CF'
+            String updatePreviousBillQuery = "UPDATE transactions SET payment_status = 'CF' WHERE account_id = ? AND payment_status = 'NO'";
+            try (PreparedStatement updateStmt = conn.prepareStatement(updatePreviousBillQuery)) {
                 updateStmt.setString(1, accountIdString);
                 updateStmt.executeUpdate();
+            }
 
-                // 3. Add Carry Forward to Current Amount
-                total_amount += carryForwardAmount;
+            // Add carry forward amount
+            total_amount += carryForwardAmount;
 
-                // 4. Generate Bill Number (8 digit + 'T' prefix)
-                String billQuery = "SELECT COALESCE(MAX(CAST(SUBSTR(bill_number, -8) AS INTEGER)), 0) AS bill_number_max FROM transactions";
-                ResultSet rs0 = Database.getStatement().executeQuery(billQuery);
-
-                int newBillNumber = 1;
+            // Generate new bill number
+            String billQuery = "SELECT COALESCE(MAX(CAST(SUBSTR(bill_number, -8) AS INTEGER)), 0) AS bill_number_max FROM transactions";
+            int newBillNumber = 1;
+            try (PreparedStatement billStmt = conn.prepareStatement(billQuery);
+                 ResultSet rs0 = billStmt.executeQuery()) {
                 if (rs0.next()) {
                     newBillNumber = rs0.getInt("bill_number_max") + 1;
                 }
+            }
 
-                String billNumberStringGenerated = String.format("%08d", newBillNumber);
-                String seriesOfBill = "T";
-                billNumberString = seriesOfBill + billNumberStringGenerated;
+            String billNumberString = "T" + String.format("%08d", newBillNumber);
 
-                // 5. Insert New Bill Record
-                String query = "INSERT INTO transactions (account_id, date_of_transaction, unit, rate_per_unit, amount, bill_number, payment_status) " +
-                        "VALUES (?, DATE('now'), ?, ?, ?, ?, 'NO')";
-                PreparedStatement insertStmt = Database.getConnection().prepareStatement(query);
+            // Insert new bill record
+            String insertQuery = "INSERT INTO transactions (account_id, date_of_transaction, unit, rate_per_unit, amount, bill_number, payment_status) " +
+                    "VALUES (?, DATE('now'), ?, ?, ?, ?, 'NO')";
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
                 insertStmt.setString(1, accountIdString);
                 insertStmt.setDouble(2, totalConsumedUnitsDouble);
                 insertStmt.setDouble(3, rate_per_unit);
                 insertStmt.setDouble(4, total_amount);
                 insertStmt.setString(5, billNumberString);
                 insertStmt.executeUpdate();
-
-                // 6. Reset Fields in UI
-                totalConsumedUnits.setText("");
-                accountId.setText("");
-                connectionType.setText("");
-                name.setText("");
-                address.setText("");
-                city.setText("");
-                pinCode.setText("");
-                mobileNumber.setText("");
-                state.select(0);
-
-                totalBilled.setText(String.valueOf(total_amount));
-                billNumber.setText(billNumberString);
-
-                JOptionPane.showMessageDialog(null, "Bill Generated Successfully! of ₹" + total_amount);
-
-            } catch (SQLException ex) {
-                ex.printStackTrace();
             }
 
+            // Reset fields and display results
+            totalConsumedUnits.setText("");
+            accountId.setText("");
+            connectionType.setText("");
+            name.setText("");
+            address.setText("");
+            city.setText("");
+            pinCode.setText("");
+            mobileNumber.setText("");
+            state.select(0);
 
-        }
-        if (e.getSource() == close) {
-            showExitDialog(generateBill.this);
+            totalBilled.setText(String.format("%.2f", total_amount));
+            billNumber.setText(billNumberString);
+
+            JOptionPane.showMessageDialog(null, "Bill Generated Successfully! Of ₹" + String.format("%.2f", total_amount));
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error generating bill!", "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -346,34 +333,7 @@ public class generateBill extends JFrame implements ActionListener {
     }
 
     public static void addSuggestionText(JTextField field, String text) {
-        field.setText(text);
-        field.setForeground(new Color(153, 153, 153));
-        field.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (field.getText().equals(text)) {
-                    field.setText("");
-                    field.setForeground(Color.BLACK);
-                }
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (field.getText().equals("")) {
-                    field.setText(text);
-                    field.setForeground(new Color(153, 153, 153));
-                }
-            }
-        });
-    }
-
-    public static boolean isOnlyDigits(String str) {
-        try {
-            Long.parseLong(str);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
+        payBill.addSuggestionText(field, text);
     }
 
     public Choice createChoice(int x, int y, int width, int height) {
@@ -405,7 +365,6 @@ public class generateBill extends JFrame implements ActionListener {
             stateChoice.add(s);
         }
     }
-
 
     public static void main(String[] args) {
         new generateBill();

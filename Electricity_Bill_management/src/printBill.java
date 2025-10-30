@@ -1,16 +1,16 @@
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.print.Printable;
 import java.awt.print.PrinterJob;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Connection;
 
 public class printBill extends JFrame implements ActionListener {
     JTextField billNumber;
     JButton printBillButton;
-    PrintJob printJob;
     JPanel invoicePanel;
 
     printBill() {
@@ -30,7 +30,6 @@ public class printBill extends JFrame implements ActionListener {
 
         invoicePanel = new JPanel();
         invoicePanel.setLayout(new BoxLayout(invoicePanel, BoxLayout.Y_AXIS));
-//        invoicePanel.setBorder(BorderFactory.createTitledBorder("Invoice Preview"));
         invoicePanel.setBounds((int) (width * 0.5), marginTop, (int) (width * 0.4), (int) (height * 0.75));
         invoicePanel.setBackground(new Color(255, 255, 255));
         add(invoicePanel);
@@ -51,9 +50,9 @@ public class printBill extends JFrame implements ActionListener {
         add(heading);
 
         JButton printInvoiceBtn = new JButton("Print Invoice");
-        printInvoiceBtn.setBounds(marginLeft, marginTop + rowHeight + spacingY * 2 + 10 +20 , fieldX, rowHeight);
+        printInvoiceBtn.setBounds(marginLeft, marginTop + rowHeight + spacingY * 2 + 10 + 20, fieldX, rowHeight);
         printInvoiceBtn.setFont(new Font("Arial", Font.BOLD, 20));
-        printInvoiceBtn.addActionListener(e -> printInvoicePanel());
+        printInvoiceBtn.addActionListener(_ -> printInvoicePanel());
         add(printInvoiceBtn);
 
 
@@ -91,117 +90,90 @@ public class printBill extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "Please enter a valid Bill Number.");
                 return;
             }
-
             displayInvoice(billNo); // Custom method
         }
     }
 
-//    public void displayInvoice(String billNo) {
-//
-//        invoicePanel.removeAll();
-//        invoicePanel.revalidate();
-//        invoicePanel.repaint();
-//
-//        try {
-//            // Replace with your DB connection code
-//            String query = "SELECT * FROM transaction WHERE bill_number = '" + billNo + "'";
-//
-//            ResultSet rs = Database.getStatement().executeQuery(query);
-//            if (rs.next()) {
-//                JLabel billLabel = new JLabel("Bill Number: " + rs.getString("bill_number"));
-//                JLabel nameLabel = new JLabel("Account Id: " + rs.getString("account_id"));
-//                JLabel dateLabel = new JLabel("Date: " + rs.getString("date_of_payment"));
-//                JLabel amountLabel = new JLabel("Total Amount: ₹" + rs.getString("amount"));
-//
-//                Font font = new Font("Arial", Font.PLAIN, 18);
-//                for (JLabel label : new JLabel[]{billLabel, nameLabel, dateLabel, amountLabel}) {
-//                    label.setFont(font);
-//                    label.setAlignmentX(Component.LEFT_ALIGNMENT);
-//                    invoicePanel.add(Box.createVerticalStrut(10)); // Space between labels
-//                    invoicePanel.add(label);
-//                }
-
-    /// /                exportPanelToPDF(invoicePanel, "Invoice_" + billNo + ".pdf");
-//            } else {
-//                JLabel notFound = new JLabel("Bill not found.");
-//                notFound.setFont(new Font("Arial", Font.BOLD, 18));
-//                notFound.setForeground(Color.RED);
-//                invoicePanel.add(notFound);
-//            }
-//
-//        } catch (SQLException ex) {
-//            ex.printStackTrace();
-//            JOptionPane.showMessageDialog(this, "Error fetching bill data.");
-//        }
-//    }
     public void displayInvoice(String billNo) {
         invoicePanel.removeAll();
         invoicePanel.revalidate();
         invoicePanel.repaint();
 
-        try {
-            String query = "SELECT * FROM transactions t JOIN customer c ON t.account_id = c.account_id WHERE bill_number = '" + billNo + "'";
-            ResultSet rs = Database.getStatement().executeQuery(query);
+        String query = "SELECT * FROM transactions t JOIN customer c ON t.account_id = c.account_id WHERE bill_number = ?";
 
-            if (rs.next()) {
-                JTextArea billArea = new JTextArea();
-                billArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
-                billArea.setEditable(false);
+        try (Connection conn = Database.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
 
-                String formattedBill = String.format(
-                                "------------------------------------------------------------\n" +
-                                "|                      ELECTRICITY BILL                    |\n" +
-                                "------------------------------------------------------------\n" +
-                                "| Bill No: %-18s   Date: %-20s |\n" +
-                                "------------------------------------------------------------\n" +
-                                "| Account ID       : %-37s |\n" +
-                                "| Name             : %-37s |\n" +
-                                "| Address          : %-37s |\n" +
-                                "| State            : %-37s |\n" +
-                                "| Mobile           : %-37s |\n" +
-                                "| Connection Type  : %-37s |\n" +
-                                "| Meter Number     : %-37s |\n" +
-                                "| ID Proof         : %-37s |\n" +
-                                "| Issue Date       : %-37s |\n" +
-                                "------------------------------------------------------------\n" +
-                                "| Units Consumed   : %-37s |\n" +
-                                "| Rate/Unit        : ₹%-36s |\n" +
-                                "| Total Amount     : ₹%-36s |\n" +
-                                "| Status           : %-37s |\n" +
-                                "------------------------------------------------------------\n" +
-                                "| Thank you for using our services. Pay before due date.   |\n" +
-                                "------------------------------------------------------------",
-                        rs.getString("bill_number"),
-                        rs.getString("date_of_payment"),
-                        rs.getString("account_id"),
-                        rs.getString("name"),
-                        rs.getString("address") + ", " + rs.getString("city") + " - " + rs.getString("pin_code"),
-                        rs.getString("state"),
-                        rs.getString("mobile_number"),
-                        rs.getString("connection_type"),
-                        rs.getString("meter_number"),
-                        rs.getString("id_proof_type") + " - " + rs.getString("id_proof_number"),
-                        rs.getString("date_of_issue"),
-                        rs.getString("unit"),
-                        rs.getString("rate_per_unit"),
-                        rs.getString("amount"),
-                        rs.getString("payment_status")
-                );
+            pstmt.setString(1, billNo);
 
-                billArea.setText(formattedBill);
-                invoicePanel.add(new JScrollPane(billArea));
+            try (ResultSet rs = pstmt.executeQuery()) {
+                invoicePanel.removeAll();  // Clear previous content in the invoice panel
 
-            } else {
-                JLabel notFound = new JLabel("Bill not found.");
-                notFound.setFont(new Font("Arial", Font.BOLD, 18));
-                notFound.setForeground(Color.RED);
-                invoicePanel.add(notFound);
+                if (rs.next()) {
+                    JTextArea billArea = new JTextArea();
+                    billArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
+                    billArea.setEditable(false);
+
+                    String formattedBill = String.format(
+                            """
+                                    ------------------------------------------------------------
+                                    |                      ELECTRICITY BILL                    |
+                                    ------------------------------------------------------------
+                                    | Bill No: %-18s   Date: %-20s |
+                                    ------------------------------------------------------------
+                                    | Account ID       : %-37s |
+                                    | Name             : %-37s |
+                                    | Address          : %-37s |
+                                    | State            : %-37s |
+                                    | Mobile           : %-37s |
+                                    | Connection Type  : %-37s |
+                                    | Meter Number     : %-37s |
+                                    | ID Proof         : %-37s |
+                                    | Issue Date       : %-37s |
+                                    ------------------------------------------------------------
+                                    | Units Consumed   : %-37s |
+                                    | Rate/Unit        : ₹%-36s |
+                                    | Total Amount     : ₹%-36s |
+                                    | Status           : %-37s |
+                                    ------------------------------------------------------------
+                                    | Thank you for using our services. Pay before due date.   |
+                                    ------------------------------------------------------------""",
+                            rs.getString("bill_number"),
+                            rs.getString("date_of_payment"),
+                            rs.getString("account_id"),
+                            rs.getString("name"),
+                            rs.getString("address") + ", " + rs.getString("city") + " - " + rs.getString("pin_code"),
+                            rs.getString("state"),
+                            rs.getString("mobile_number"),
+                            rs.getString("connection_type"),
+                            rs.getString("meter_number"),
+                            rs.getString("id_proof_type") + " - " + rs.getString("id_proof_number"),
+                            rs.getString("date_of_issue"),
+                            rs.getString("unit"),
+                            rs.getString("rate_per_unit"),
+                            rs.getString("amount"),
+                            rs.getString("payment_status")
+                    );
+
+                    billArea.setText(formattedBill);
+                    invoicePanel.add(new JScrollPane(billArea));
+                } else {
+                    JLabel notFound = new JLabel("Bill not found.");
+                    notFound.setFont(new Font("Arial", Font.BOLD, 18));
+                    notFound.setForeground(Color.RED);
+                    invoicePanel.add(notFound);
+                }
+
+                invoicePanel.revalidate();
+                invoicePanel.repaint();
             }
-
         } catch (SQLException ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error fetching bill data.");
+            JOptionPane.showMessageDialog(this, "Error fetching bill data.", "Database Error", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+
     }
 
     private void printInvoicePanel() {
@@ -228,7 +200,6 @@ public class printBill extends JFrame implements ActionListener {
         }
     }
 
-
     public void createLabel(String labelName, int x, int y, int width, int height) {
         JLabel label = new JLabel(labelName);
         label.setBounds(x, y, width, height);
@@ -254,25 +225,7 @@ public class printBill extends JFrame implements ActionListener {
     }
 
     public static void addSuggestionText(JTextField field, String text) {
-        field.setText(text);
-        field.setForeground(new Color(153, 153, 153));
-        field.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (field.getText().equals(text)) {
-                    field.setText("");
-                    field.setForeground(Color.BLACK);
-                }
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (field.getText().equals("")) {
-                    field.setText(text);
-                    field.setForeground(new Color(153, 153, 153));
-                }
-            }
-        });
+        payBill.addSuggestionText(field, text);
     }
 
     public void createButton(String name, int x, int y, int width, int height) {
@@ -281,28 +234,6 @@ public class printBill extends JFrame implements ActionListener {
         printBillButton.setFont(new Font("Arial", Font.PLAIN, 20));
         printBillButton.addActionListener(this); // Add ActionListener
         add(printBillButton);
-    }
-
-    public Choice createChoice(int x, int y, int width, int height) {
-        Choice choice = new Choice();
-        choice.setBounds(x, y, width, height);
-        choice.setFont(new Font("Arial", Font.PLAIN, 20));
-        add(choice);
-        return choice;
-    }
-
-    public void addStates(Choice stateChoice) {
-        String[] states = {
-                "", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
-                "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
-                "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur",
-                "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab",
-                "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura",
-                "Uttar Pradesh", "Uttarakhand", "West Bengal"
-        };
-        for (String s : states) {
-            stateChoice.add(s);
-        }
     }
 
     public static void main(String[] args) {

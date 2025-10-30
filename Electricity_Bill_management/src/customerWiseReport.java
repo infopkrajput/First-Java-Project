@@ -1,23 +1,21 @@
 import javax.swing.*;
+import java.awt.*;
+import java.sql.*;
+import java.awt.event.*;
 import javax.swing.table.DefaultTableModel;
-import javax.xml.crypto.Data;
 
 import com.toedter.calendar.JDateChooser;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.util.Vector;
 
 public class customerWiseReport extends JFrame implements ActionListener {
 
-    private JDateChooser dateChooserFrom, dateChooserTo;
-    private Choice customerChoice, typeChoice;
-    private JTable table;
-    private DefaultTableModel tableModel;
-    private JButton fetchButton;
-    private String selectedCustomer;
+    private final JDateChooser dateChooserFrom;
+    private final JDateChooser dateChooserTo;
+    private final Choice customerChoice;
+    private final Choice typeChoice;
+    private final DefaultTableModel tableModel;
+    private final JButton fetchButton;
 
     customerWiseReport() {
         String title = "Customer wise Report";
@@ -51,17 +49,22 @@ public class customerWiseReport extends JFrame implements ActionListener {
         customerChoice = createChoice(fieldX, marginTop + rowHeight + 20, fieldWidth, rowHeight);
 
         String customerListQuery = "SELECT * FROM customer";
-        try {
-            ResultSet rs0 = Database.getStatement().executeQuery(customerListQuery);
+
+        try (Connection conn = Database.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs0 = stmt.executeQuery(customerListQuery)) {
+
             while (rs0.next()) {
                 String name = rs0.getString("name");
                 String city = rs0.getString("city");
                 String displayText = name + ", " + city;
                 customerChoice.add(displayText);
             }
-        } catch (SQLException ex) {
+
+        } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
+
 
         createLabel("Type: ", marginLeft + fieldX + fieldWidth, marginTop + rowHeight + 20, labelWidth - 80, rowHeight);
         typeChoice = createChoice(marginLeft + fieldX + fieldWidth + labelWidth - 80, marginTop + rowHeight + 20, fieldWidth / 3, rowHeight);
@@ -74,7 +77,7 @@ public class customerWiseReport extends JFrame implements ActionListener {
 
 
         tableModel = new DefaultTableModel(new String[]{"ID", "Name", "City", "Invoice No.", "Date", "Amount", "Status"}, 0);
-        table = new JTable(tableModel);
+        JTable table = new JTable(tableModel);
         table.setFont(new Font("Arial", Font.PLAIN, 18));
         table.setRowHeight(25);
 
@@ -126,61 +129,66 @@ public class customerWiseReport extends JFrame implements ActionListener {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             String fromDate = sdf.format(dateChooserFrom.getDate());
             String toDate = sdf.format(dateChooserTo.getDate());
-            String filter = typeChoice.getSelectedItem().toString();
+            String filter = typeChoice.getSelectedItem();
 
-            String selectedItem = customerChoice.getSelectedItem().toString().trim();
+            String selectedItem = customerChoice.getSelectedItem().trim();
             String customerName = selectedItem.split(",")[0].trim();
 
-            try {
+            StringBuilder queryBuilder = getStringBuilder(filter);
 
-                StringBuilder queryBuilder = new StringBuilder(
-                        "SELECT \n" +
-                                "    customer.account_id AS AccountID,\n" +
-                                "    customer.name,\n" +
-                                "    customer.city,\n" +
-                                "    \"transactions\".bill_number,\n" +
-                                "    \"transactions\".date_of_transaction,\n" +
-                                "    \"transactions\".amount,\n" +
-                                "    \"transactions\".payment_status\n" +
-                                "FROM \n" +
-                                "    customer\n" +
-                                "JOIN \n" +
-                                "    \"transactions\"\n" +
-                                "ON \n" +
-                                "    customer.account_id = \"transactions\".account_id\n" +
-                                "WHERE \n" +
-                                "    customer.name = ? AND\n" +
-                                "    \"transactions\".date_of_transaction BETWEEN ? AND ?"
-                );
-                if (filter.equals("Paid")) {
-                    queryBuilder.append(" AND \"transactions\".payment_status = 'YES'");
-                } else if (filter.equals("Pending")) {
-                    queryBuilder.append(" AND \"transactions\".payment_status = 'NO'");
-                }
+            try (Connection conn = Database.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(queryBuilder.toString())) {
 
-                PreparedStatement ps = Database.getConnection().prepareStatement(queryBuilder.toString());
                 ps.setString(1, customerName);
                 ps.setString(2, fromDate);
                 ps.setString(3, toDate);
 
-                ResultSet rs0 = ps.executeQuery();
-                ResultSetMetaData rsmd = rs0.getMetaData();
-                int columnCount = rsmd.getColumnCount();
+                try (ResultSet rs0 = ps.executeQuery()) {
+                    ResultSetMetaData rsmd = rs0.getMetaData();
+                    int columnCount = rsmd.getColumnCount();
 
-                while (rs0.next()) {
-                    Object[] row = new Object[columnCount];
-                    for (int i = 1; i <= columnCount; i++) {
-                        row[i - 1] = rs0.getObject(i);
+                    while (rs0.next()) {
+                        Object[] row = new Object[columnCount];
+                        for (int i = 1; i <= columnCount; i++) {
+                            row[i - 1] = rs0.getObject(i);
+                        }
+                        tableModel.addRow(row);
                     }
-                    tableModel.addRow(row);
                 }
-
-            } catch (SQLException ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
+    }
 
+    private static StringBuilder getStringBuilder(String filter) {
+        StringBuilder queryBuilder = new StringBuilder(
+                """
+                        SELECT\s
+                            customer.account_id AS AccountID,
+                            customer.name,
+                            customer.city,
+                            transactions.bill_number,
+                            transactions.date_of_transaction,
+                            transactions.amount,
+                            transactions.payment_status
+                        FROM\s
+                            customer
+                        JOIN\s
+                            transactions
+                        ON\s
+                            customer.account_id = transactions.account_id
+                        WHERE\s
+                            customer.name = ? AND
+                            transactions.date_of_transaction BETWEEN ? AND ?"""
+        );
 
+        if (filter.equals("Paid")) {
+            queryBuilder.append(" AND transactions.payment_status = 'YES'");
+        } else if (filter.equals("Pending")) {
+            queryBuilder.append(" AND transactions.payment_status = 'NO'");
+        }
+        return queryBuilder;
     }
 
     public void createLabel(String labelName, int x, int y, int width, int height) {
@@ -188,14 +196,6 @@ public class customerWiseReport extends JFrame implements ActionListener {
         label.setBounds(x, y, width, height);
         label.setFont(new Font("Arial", Font.PLAIN, 20));
         add(label);
-    }
-
-    public JTextField createTextField(int x, int y, int width, int height) {
-        JTextField field = new JTextField();
-        field.setBounds(x, y, width, height);
-        field.setFont(new Font("Arial", Font.PLAIN, 20));
-        add(field);
-        return field;
     }
 
     public Choice createChoice(int x, int y, int width, int height) {

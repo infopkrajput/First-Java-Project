@@ -1,18 +1,15 @@
-import com.sun.tools.javac.Main;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-
 public class Login extends JFrame implements ActionListener {
-    JTextField usernameInput, passwordInput;
+    JTextField usernameInput;
+    JPasswordField passwordInput;
     Choice loginChoice;
     JButton loginButton, forget, signUpButton;
 
@@ -84,25 +81,10 @@ public class Login extends JFrame implements ActionListener {
         setSize(500, 300);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                try {
-                    Connection conn = Database.getConnection();
-                    if (conn != null && !conn.isClosed()) {
-                        conn.close();
-                        System.out.println("Database connection closed.");
-                    }
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
 
         setResizable(false);
         setLayout(null);
         setVisible(true);
-
     }
 
     @Override
@@ -113,26 +95,38 @@ public class Login extends JFrame implements ActionListener {
             new SignUp().setVisible(true);
         } else if (e.getSource() == loginButton) {
             String username = usernameInput.getText();
-            String password = passwordInput.getText();
+            String password = new String(passwordInput.getPassword());
             String loginAs = loginChoice.getSelectedItem();
             Session.userTypeLoggedInAS = loginAs;
-            if(username.equals("root")){
+            if (username.equals("root")) {
                 loginAs = "Root";
                 Session.userTypeLoggedInAS = "root";
             }
-            try {
-                String query = "select * from users where username = '" + username + "' and password = '" + password + "' and usertype = '" + loginAs + "'";
-                ResultSet resultSet = Database.getStatement().executeQuery(query);
-                Session.userNameLoggedIn = username;
-                if (resultSet.next()) {
-                    setVisible(false);
-                    new main_window();
-                } else {
-                    JOptionPane.showMessageDialog(null, "Invalid Username or Password");
-                }
 
-            } catch (Exception ex) {
+            String query = "SELECT * FROM users WHERE username = ? AND password = ? AND usertype = ?";
+
+            try (Connection conn = Database.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+                pstmt.setString(1, username);
+                pstmt.setString(2, password);
+                pstmt.setString(3, loginAs);
+
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        Session.userNameLoggedIn = username;
+                        setVisible(false);
+                        System.out.println("Login Granted to " + Session.userNameLoggedIn + " as " + Session.userTypeLoggedInAS);
+                        new main_window();
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Invalid Username or Password");
+                    }
+                }
+            } catch (SQLException ex) {
                 ex.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage());
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
             }
         } else if (e.getSource() == forget) {
             setVisible(false);

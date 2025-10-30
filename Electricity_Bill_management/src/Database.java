@@ -1,4 +1,3 @@
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -6,21 +5,18 @@ import java.sql.Statement;
 import java.io.File;
 
 public class Database {
-    private static Connection conn = null;
-    private static Statement stmt = null;
-
     // Path of the database file
     private static final String dbPath = "D:\\BillingApp\\Data\\bill_system.db";
     private static final String jdbcUrl = "jdbc:sqlite:" + dbPath;
 
-    public static void connect() {
-        try {
+    public static void initialize() {
+        try (Connection conn = DriverManager.getConnection(jdbcUrl);
+             Statement stmt = conn.createStatement()) {
+
             // Ensure the parent directory exists
             File dbFile = new File(dbPath);
             dbFile.getParentFile().mkdirs();
 
-            conn = DriverManager.getConnection(jdbcUrl);
-            stmt = conn.createStatement();
             System.out.println("Connected to SQLite database at: " + dbPath);
 
             // USERS TABLE
@@ -32,16 +28,17 @@ public class Database {
                     + "usertype TEXT NOT NULL"
                     + ");";
             stmt.executeUpdate(createUsersTable);
-            String checkRootUser = "SELECT COUNT(*) AS count FROM users WHERE username = 'root'";
-            ResultSet rs = stmt.executeQuery(checkRootUser);
 
-            if (rs.next() && rs.getInt("count") == 0) {
-                String createRootUser = "INSERT INTO users (id, username, name, password, usertype) " +
-                        "VALUES (11111111, 'root', 'Root', 'Root@2025', 'Root')";
-                stmt.executeUpdate(createRootUser);
-                System.out.println("Root user created.");
-            } else {
-                System.out.println("Root user already exists.");
+            String checkRootUser = "SELECT COUNT(*) AS count FROM users WHERE username = 'root'";
+            try (ResultSet rs = stmt.executeQuery(checkRootUser)) {
+                if (rs.next() && rs.getInt("count") == 0) {
+                    String createRootUser = "INSERT INTO users (id, username, name, password, usertype) " +
+                            "VALUES (11111111, 'root', 'Root', 'Root@2025', 'Root')";
+                    stmt.executeUpdate(createRootUser);
+                    System.out.println("Root user created.");
+                } else {
+                    System.out.println("Root user already exists.");
+                }
             }
 
             System.out.println("Table 'users' created/verified.");
@@ -64,7 +61,7 @@ public class Database {
             stmt.executeUpdate(createCustomerTable);
             System.out.println("Table 'customer' created/verified.");
 
-            // TRANSACTIONS TABLE (renamed from "transaction")
+            // TRANSACTIONS TABLE
             String createTransactionsTable = "CREATE TABLE IF NOT EXISTS transactions ("
                     + "account_id TEXT, "
                     + "date_of_transaction TEXT, "
@@ -83,11 +80,7 @@ public class Database {
         }
     }
 
-    public static Connection getConnection() {
-        return conn;
-    }
-
-    public static Statement getStatement() {
-        return stmt;
+    public static Connection getConnection() throws Exception {
+        return DriverManager.getConnection(jdbcUrl);
     }
 }

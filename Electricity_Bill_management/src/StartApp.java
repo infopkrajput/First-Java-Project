@@ -20,7 +20,7 @@ public class StartApp extends JFrame {
         try {
             Thread.sleep(3000);
             setVisible(false);
-            Database.connect();
+            Database.initialize();
             new Login();
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -31,3 +31,4 @@ public class StartApp extends JFrame {
         new StartApp();
     }
 }
+

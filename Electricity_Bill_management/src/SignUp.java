@@ -2,9 +2,13 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class SignUp extends JFrame implements ActionListener {
-    JTextField usernameInput, passwordInput, nameInput, idInput;
+    JTextField usernameInput, nameInput, idInput;
+    JPasswordField passwordInput;
     Choice createAccountAs;
     JButton create, back;
     JLabel usernameError, passwordError, employeeIdError, nameError, accountIdError;
@@ -66,20 +70,6 @@ public class SignUp extends JFrame implements ActionListener {
         employeeIdError.setVisible(false);
         add(employeeIdError);
 
-        // Add a AccountID label
-//        JLabel accountID = new JLabel("Account ID: ");
-//        accountID.setBounds(20, 130, 150, 25);
-//        accountID.setFont(new Font("Arial", Font.BOLD, 15));
-//        accountID.setVisible(false);
-//        add(accountID);
-
-        // Add idInput text Field
-//        idInput = new JTextField();
-//        idInput.setBounds(170, 130, 150, 25);
-//        idInput.setFont(new Font("Arial", Font.PLAIN, 15));
-//        idInput.setVisible(true);
-//        add(idInput);
-
         accountIdError = new JLabel("Required");
         accountIdError.setForeground(Color.RED);
         accountIdError.setBounds(170, 152, 150, 25);
@@ -88,15 +78,12 @@ public class SignUp extends JFrame implements ActionListener {
         add(accountIdError);
 
 
-        createAccountAs.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                String user = createAccountAs.getSelectedItem();
-                if (user.equals("Admin")) {
-                    employeeID.setText("Employee ID");
-                } else {
-                    employeeID.setText("Account ID");
-                }
+        createAccountAs.addItemListener(_ -> {
+            String user = createAccountAs.getSelectedItem();
+            if (user.equals("Admin")) {
+                employeeID.setText("Employee ID");
+            } else {
+                employeeID.setText("Account ID");
             }
         });
 
@@ -197,6 +184,7 @@ public class SignUp extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Border redBorder = BorderFactory.createLineBorder(Color.RED, 2);
         Border normalBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
+
         if (e.getSource() == create) {
             String id = null;
             if (createAccountAs.getSelectedItem().equals("Admin")) {
@@ -204,6 +192,7 @@ public class SignUp extends JFrame implements ActionListener {
             } else if (createAccountAs.getSelectedItem().equals("Customer")) {
                 id = idInput.getText();
             }
+
             String createAsString = createAccountAs.getSelectedItem();
             String userNameString = usernameInput.getText();
             String nameString = nameInput.getText();
@@ -285,32 +274,36 @@ public class SignUp extends JFrame implements ActionListener {
                 return;
             }
 
-            try {
-                Database c = new Database();
-//                String query = "insert into users value('" + id + "','" + userNameString + "','" + nameString + "','" + passwordString + "','" + createAsString + "')";
-                String query = "INSERT INTO users (id, username, name, password, usertype) VALUES ('"
-                        + id + "', '"
-                        + userNameString + "', '"
-                        + nameString + "', '"
-                        + passwordString + "', '"
-                        + createAsString + "');";
+            String query = "INSERT INTO users (id, username, name, password, usertype) VALUES (?, ?, ?, ?, ?)";
+            try (Connection conn = Database.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(query)) {
 
-                c.getStatement().executeUpdate(query);
-                JOptionPane.showMessageDialog(null, "Account Created Successful");
-                setVisible(false);
-                new Login();
-            } catch (Exception ex) {
+                pstmt.setString(1, id);
+                pstmt.setString(2, userNameString);
+                pstmt.setString(3, nameString);
+                pstmt.setString(4, passwordString);
+                pstmt.setString(5, createAsString);
+
+                int rowsAffected = pstmt.executeUpdate();
+
+                if (rowsAffected > 0) {
+                    JOptionPane.showMessageDialog(null, "Account Created Successful");
+                    setVisible(false);
+                    new Login();
+                } else {
+                    JOptionPane.showMessageDialog(null, "Account creation failed.");
+                }
+            } catch (SQLException ex) {
                 ex.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage());
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
             }
 
         } else if (e.getSource() == back) {
             setVisible(false);
             new Login();
         }
-    }
-
-    public boolean isPasswordStrong(String password) {
-        return password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$");
     }
 
     public static void main(String[] args) {

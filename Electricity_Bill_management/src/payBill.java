@@ -4,7 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.Connection;
 
 public class payBill extends JFrame implements ActionListener {
 
@@ -150,76 +150,81 @@ public class payBill extends JFrame implements ActionListener {
                 return;
             }
 
+            String query = "SELECT * FROM customer WHERE account_id = ?";
+            String billQuery = "SELECT * FROM transactions WHERE account_id = ? AND payment_status = 'NO'";
 
-            try {
-                // 1. Check if Customer Exists
-                String query = "SELECT * FROM customer WHERE account_id = ?";
-                PreparedStatement customerStmt = Database.getConnection().prepareStatement(query);
+            try (Connection conn = Database.getConnection();
+                 PreparedStatement customerStmt = conn.prepareStatement(query);
+                 PreparedStatement billStmt = conn.prepareStatement(billQuery)) {
+
                 customerStmt.setString(1, accountIdString);
-                ResultSet rs0 = customerStmt.executeQuery();
 
-                if (rs0.next()) {
-                    accountId.setBorder(greenBorder);
-                    name.setText(rs0.getString("name"));
-                    address.setText(rs0.getString("address"));
-                    city.setText(rs0.getString("city"));
-                    pinCode.setText(rs0.getString("pin_code"));
-                    mobileNumber.setText(rs0.getString("mobile_number"));
-                    state.select(rs0.getString("state"));
+                try (ResultSet rs0 = customerStmt.executeQuery()) {
+                    if (rs0.next()) {
+                        accountId.setBorder(greenBorder);
+                        name.setText(rs0.getString("name"));
+                        address.setText(rs0.getString("address"));
+                        city.setText(rs0.getString("city"));
+                        pinCode.setText(rs0.getString("pin_code"));
+                        mobileNumber.setText(rs0.getString("mobile_number"));
+                        state.select(rs0.getString("state"));
 
-                    // 2. Check Pending Bill
-                    String billQuery = "SELECT * FROM transactions WHERE account_id = ? AND payment_status = 'NO'";
-                    PreparedStatement billStmt = Database.getConnection().prepareStatement(billQuery);
-                    billStmt.setString(1, accountIdString);
-                    ResultSet rs1 = billStmt.executeQuery();
+                        billStmt.setString(1, accountIdString);
+                        try (ResultSet rs1 = billStmt.executeQuery()) {
+                            if (rs1.next()) {
+                                billNumbers.setText(rs1.getString("bill_number"));
+                                totalBilled.setText(rs1.getString("amount"));
+                            } else {
+                                JOptionPane.showMessageDialog(this,
+                                        "No Pending bill found for the entered Account ID.",
+                                        "Not Found", JOptionPane.INFORMATION_MESSAGE);
+                                name.setText("");
+                                address.setText("");
+                                city.setText("");
+                                pinCode.setText("");
+                                mobileNumber.setText("");
+                                state.select(0);
+                                totalBilled.setText("");
+                                billNumbers.setText("");
+                            }
+                        }
 
-                    if (rs1.next()) {
-                        billNumbers.setText(rs1.getString("bill_number"));
-                        totalBilled.setText(rs1.getString("amount"));
                     } else {
-                        // No Pending Bill
-                        JOptionPane.showMessageDialog(this, "No Pending bill found for the entered Account ID.", "Not Found", JOptionPane.INFORMATION_MESSAGE);
+                        addSuggestionText(accountId, "Account ID not found");
                         name.setText("");
                         address.setText("");
                         city.setText("");
                         pinCode.setText("");
                         mobileNumber.setText("");
                         state.select(0);
+                        accountId.setBorder(redBorder);
                         totalBilled.setText("");
                         billNumbers.setText("");
+                        JOptionPane.showMessageDialog(this,
+                                "No data found for the entered Account ID.",
+                                "Not Found", JOptionPane.INFORMATION_MESSAGE);
                     }
-
-                } else {
-                    // Account Not Found
-                    addSuggestionText(accountId, "Account ID not found");
-                    name.setText("");
-                    address.setText("");
-                    city.setText("");
-                    pinCode.setText("");
-                    mobileNumber.setText("");
-                    state.select(0);
-                    accountId.setBorder(redBorder);
-                    totalBilled.setText("");
-                    billNumbers.setText("");
-                    JOptionPane.showMessageDialog(this, "No data found for the entered Account ID.", "Not Found", JOptionPane.INFORMATION_MESSAGE);
                 }
-
-            } catch (Exception ECheck) {
-                ECheck.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Error fetching data! Database connection.", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this,
+                        "Error fetching data! Database connection.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
             }
+
         }
 
         if (e.getSource() == paid) {
-            boolean isCorrect = true;
-            if (totalBilled.getText().equals("")) {
-                isCorrect = false;
+            if (totalBilled.getText().isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Please account id and click open.");
                 return;
             }
-            try {
-                String query = "UPDATE transactions SET payment_status = 'YES', date_of_payment = datetime('now') WHERE account_id = ? AND payment_status = 'NO'";
-                PreparedStatement stmt = Database.getConnection().prepareStatement(query);
+
+            String updateQuery = "UPDATE transactions SET payment_status = 'YES', date_of_payment = datetime('now') WHERE account_id = ? AND payment_status = 'NO'";
+
+            try (Connection conn = Database.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(updateQuery)) {
+
                 stmt.setString(1, accountId.getText());
                 int rowsAffected = stmt.executeUpdate();
 
@@ -239,12 +244,10 @@ public class payBill extends JFrame implements ActionListener {
                 totalBilled.setText("");
                 billNumbers.setText("");
 
-            } catch (SQLException ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Error updating bill payment!", "Database Error", JOptionPane.ERROR_MESSAGE);
             }
-
-
         }
 
         if (e.getSource() == close) {
@@ -291,7 +294,7 @@ public class payBill extends JFrame implements ActionListener {
 
             @Override
             public void focusLost(FocusEvent e) {
-                if (field.getText().equals("")) {
+                if (field.getText().isEmpty()) {
                     field.setText(text);
                     field.setForeground(new Color(153, 153, 153));
                 }

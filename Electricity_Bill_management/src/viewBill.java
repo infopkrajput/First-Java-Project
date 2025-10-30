@@ -3,6 +3,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
+import java.sql.Connection;
 
 public class viewBill extends JFrame implements ActionListener {
 
@@ -30,15 +31,12 @@ public class viewBill extends JFrame implements ActionListener {
         billTypeChoice.add("Pending");
         billTypeChoice.add("Paid");
 
-        billTypeChoice.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                String selected = billTypeChoice.getSelectedItem();
-                if (selected.equals("Pending")) {
-                    loadBills("NO");
-                } else if (selected.equals("Paid")) {
-                    loadBills("YES");
-                }
+        billTypeChoice.addItemListener(_ -> {
+            String selected = billTypeChoice.getSelectedItem();
+            if (selected.equals("Pending")) {
+                loadBills("NO");
+            } else if (selected.equals("Paid")) {
+                loadBills("YES");
             }
         });
 
@@ -86,55 +84,57 @@ public class viewBill extends JFrame implements ActionListener {
         setVisible(true);
     }
 
-
     public void loadBills(String paymentStatus) {
-        try {
-            model.setRowCount(0);
-            model.setColumnCount(0);
+        model.setRowCount(0);
+        model.setColumnCount(0);
 
-            String query = "SELECT " +
-                    "t.account_id, " +
-                    "t.bill_number AS Bill_no, " +
-                    "c.name, " +
-                    "c.city, " +
-                    "c.mobile_number, " +
-                    "t.date_of_transaction AS DateOfTransaction, " +
-                    "t.unit AS Units, " +
-                    "t.amount AS Amount, " +
-                    "t.payment_status AS Paid " +
-                    "FROM transactions t " +
-                    "JOIN customer c ON t.account_id = c.account_id " +
-                    "WHERE t.payment_status = ?";
+        String query = "SELECT " +
+                "t.account_id, " +
+                "t.bill_number AS Bill_no, " +
+                "c.name, " +
+                "c.city, " +
+                "c.mobile_number, " +
+                "t.date_of_transaction AS DateOfTransaction, " +
+                "t.unit AS Units, " +
+                "t.amount AS Amount, " +
+                "t.payment_status AS Paid " +
+                "FROM transactions t " +
+                "JOIN customer c ON t.account_id = c.account_id " +
+                "WHERE t.payment_status = ?";
 
-            PreparedStatement pstmt = Database.getConnection().prepareStatement(query);
-            pstmt.setString(1, paymentStatus); // Use parameter instead of direct string
+        String[] columnNames = {
+                "Account ID", "Bill No", "Name", "City", "Mobile",
+                "Date", "Units", "Amount", "Paid"
+        };
 
-            ResultSet rs = pstmt.executeQuery();
-            ResultSetMetaData rsmd = rs.getMetaData();
-            int columnCount = rsmd.getColumnCount();
+        for (String col : columnNames) {
+            model.addColumn(col);
+        }
 
-            String[] columnNames = {
-                    "Account ID", "Bill No", "Name", "City", "Mobile",
-                    "Date", "Units", "Amount", "Paid"
-            };
+        try (Connection conn = Database.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
 
-            for (String col : columnNames) {
-                model.addColumn(col);
-            }
+            pstmt.setString(1, paymentStatus);
 
-            while (rs.next()) {
-                Object[] row = new Object[columnCount];
-                for (int i = 1; i <= columnCount; i++) {
-                    row[i - 1] = rs.getObject(i);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                ResultSetMetaData rsmd = rs.getMetaData();
+                int columnCount = rsmd.getColumnCount();
+
+                while (rs.next()) {
+                    Object[] row = new Object[columnCount];
+                    for (int i = 1; i <= columnCount; i++) {
+                        row[i - 1] = rs.getObject(i);
+                    }
+                    model.addRow(row);
                 }
-                model.addRow(row);
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error loading bill records!", "Database Error", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
     }
 
     @Override
@@ -146,14 +146,6 @@ public class viewBill extends JFrame implements ActionListener {
         label.setBounds(x, y, width, height);
         label.setFont(new Font("Arial", Font.PLAIN, 20));
         add(label);
-    }
-
-    public JTextField createTextField(int x, int y, int width, int height) {
-        JTextField field = new JTextField();
-        field.setBounds(x, y, width, height);
-        field.setFont(new Font("Arial", Font.PLAIN, 20));
-        add(field);
-        return field;
     }
 
     public Choice createChoice(int x, int y, int width, int height) {

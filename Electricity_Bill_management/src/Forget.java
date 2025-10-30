@@ -3,10 +3,11 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class Forget extends JFrame implements ActionListener {
     JTextField usernameInput, passwordInput1, passwordInput2, employeeIdInput, accountIdInput;
@@ -93,21 +94,18 @@ public class Forget extends JFrame implements ActionListener {
         accountIdError.setVisible(false);
         add(accountIdError);
 
-        accounttype.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                String user = accounttype.getSelectedItem();
-                if (user.equals("Admin")) {
-                    accountID.setVisible(false);
-                    accountIdInput.setVisible(false);
-                    employeeID.setVisible(true);
-                    employeeIdInput.setVisible(true);
-                } else {
-                    accountID.setVisible(true);
-                    accountIdInput.setVisible(true);
-                    employeeID.setVisible(false);
-                    employeeIdInput.setVisible(false);
-                }
+        accounttype.addItemListener(_ -> {
+            String user = accounttype.getSelectedItem();
+            if (user.equals("Admin")) {
+                accountID.setVisible(false);
+                accountIdInput.setVisible(false);
+                employeeID.setVisible(true);
+                employeeIdInput.setVisible(true);
+            } else {
+                accountID.setVisible(true);
+                accountIdInput.setVisible(true);
+                employeeID.setVisible(false);
+                employeeIdInput.setVisible(false);
             }
         });
         // Add a Username label
@@ -205,6 +203,7 @@ public class Forget extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Border redBorder = BorderFactory.createLineBorder(Color.RED, 2);
         Border normalBorder = BorderFactory.createLineBorder(Color.GRAY, 1);
+
         if (e.getSource() == done) {
             String id = null;
             if (accounttype.getSelectedItem().equals("Admin")) {
@@ -300,18 +299,27 @@ public class Forget extends JFrame implements ActionListener {
                 return;
             }
 
-            try {
-                String query = "UPDATE users SET password = '" + password1String + "' " +
-               "WHERE id = " + id + " AND username = '" + userNameString + "' AND usertype = '" + accountTypeString + "'";
-                int rowsAffected = Database.getStatement().executeUpdate(query);
+//            String query = "UPDATE users SET password = '" + password1String + "' " + "WHERE id = " + id + " AND username = '" + userNameString + "' AND usertype = '" + accountTypeString + "'";
+            String query = "UPDATE users SET password = ? WHERE id = ? AND username = ? AND usertype = ?";
+            try (Connection conn = Database.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(query)) {
+                pstmt.setString(1, password1String);
+                pstmt.setString(2, id);        // id is string of digits; convert to int if needed via Integer.parseInt
+                pstmt.setString(3, userNameString);
+                pstmt.setString(4, accountTypeString);
+
+                int rowsAffected = pstmt.executeUpdate();
                 if (rowsAffected > 0) {
                     JOptionPane.showMessageDialog(null, "Password Reset Successful");
                     setVisible(false);
                     new Login();
-                }else{
-                    JOptionPane.showMessageDialog(null, "No user found with the given ID.\n Please try again.");
+                } else {
+                    JOptionPane.showMessageDialog(null, "No user found with the given ID. Please try again.");
                 }
 
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
