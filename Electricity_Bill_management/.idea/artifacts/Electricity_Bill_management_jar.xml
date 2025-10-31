@@ -2,9 +2,10 @@
   <artifact type="jar" name="Electricity_Bill_management:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/Electricity_Bill_management_jar</output-path>
     <root id="archive" name="Electricity_Bill_management.jar">
+      <element id="module-output" name="Electricity_Bill_management" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/itextpdf-5.5.13.3.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/sqlite-jdbc-3.49.1.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/jcalendar-1.4.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/itextpdf-5.5.13.3.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
